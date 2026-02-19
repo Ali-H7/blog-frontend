@@ -1,1 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import 'tailwindcss';
+
+@theme {
+  --font-inter: 'Inter', sans-serif, ui-sans-serif, system-ui;
+
+  /* tea_green */
+  --color-tea_green-DEFAULT: #ccd5ae;
+  --color-tea_green-100: #2d331a;
+  --color-tea_green-200: #5b6635;
+  --color-tea_green-300: #88994f;
+  --color-tea_green-400: #acbb7b;
+  --color-tea_green-500: #ccd5ae;
+  --color-tea_green-600: #d6debe;
+  --color-tea_green-700: #e1e6cf;
+  --color-tea_green-800: #ebeedf;
+  --color-tea_green-900: #f5f7ef;
+
+  /* beige */
+  --color-beige-DEFAULT: #e9edc9;
+  --color-beige-100: #3d4216;
+  --color-beige-200: #79842c;
+  --color-beige-300: #b3c146;
+  --color-beige-400: #ced788;
+  --color-beige-500: #e9edc9;
+  --color-beige-600: #edf1d4;
+  --color-beige-700: #f2f4df;
+  --color-beige-800: #f6f8ea;
+  --color-beige-900: #fbfbf4;
+
+  /* cornsilk */
+  --color-cornsilk-DEFAULT: #fefae0;
+  --color-cornsilk-100: #5d5103;
+  --color-cornsilk-200: #baa206;
+  --color-cornsilk-300: #f8dc27;
+  --color-cornsilk-400: #fbeb84;
+  --color-cornsilk-500: #fefae0;
+  --color-cornsilk-600: #fefbe7;
+  --color-cornsilk-700: #fefced;
+  --color-cornsilk-800: #fffdf3;
+  --color-cornsilk-900: #fffef9;
+
+  /* papaya_whip */
+  --color-papaya_whip-DEFAULT: #faedcd;
+  --color-papaya_whip-100: #533e08;
+  --color-papaya_whip-200: #a57b10;
+  --color-papaya_whip-300: #eab227;
+  --color-papaya_whip-400: #f2d079;
+  --color-papaya_whip-500: #faedcd;
+  --color-papaya_whip-600: #fbf1d6;
+  --color-papaya_whip-700: #fcf4e0;
+  --color-papaya_whip-800: #fdf8eb;
+  --color-papaya_whip-900: #fefbf5;
+
+  /* light_bronze */
+  --color-light_bronze-DEFAULT: #d4a373;
+  --color-light_bronze-100: #32210f;
+  --color-light_bronze-200: #64411f;
+  --color-light_bronze-300: #96622e;
+  --color-light_bronze-400: #c58341;
+  --color-light_bronze-500: #d4a373;
+  --color-light_bronze-600: #dcb68f;
+  --color-light_bronze-700: #e5c8ab;
+  --color-light_bronze-800: #eedac7;
+  --color-light_bronze-900: #f6ede3;
+}
+
+@layer base {
+  body {
+    @apply font-inter;
+  }
+}
