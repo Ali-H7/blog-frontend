@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search as SearchIcon } from 'lucide-react';
+import { Search as SearchIcon, X as XIcon } from 'lucide-react';
 import truncate from '../../helpers/truncate';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-// debounce , racing conditions
 function Search() {
   const [searchQuery, setSearchQuery] = useState('');
   const [posts, setPosts] = useState([]);
@@ -55,26 +54,36 @@ function Search() {
           className='h-full w-full px-9 py-2 rounded-xl bg-tea_green-DEFAULT border-0'
           type='text'
           placeholder='Search'
+          value={searchQuery}
           onChange={(e) => {
             setIsLoading(true);
             setSearchQuery(e.target.value);
           }}
         />
+        {searchQuery.length > 0 && (
+          <button
+            onClick={() => {
+              setSearchQuery('');
+            }}
+          >
+            <XIcon className='absolute right-2 top-1/2 -translate-y-1/2'></XIcon>
+          </button>
+        )}
       </div>
-      <ul className='py-8 space-y-4'>
-        {noPostFound ? (
-          <p>not Found</p>
-        ) : (
-          listToRender.map((post, i) => (
+      {noPostFound ? (
+        <p className='text-center py-8'>We couldn't find any posts for that search. Maybe try different keywords?</p>
+      ) : (
+        <ul className='py-8 space-y-4'>
+          {listToRender.map((post, i) => (
             <li className='p-6 rounded-lg space-y-2 bg-beige-DEFAULT' key={post.id || i}>
               <h1 className='font-bold text-xl truncate'>
                 {post.title || <Skeleton baseColor={'#e5c8ab'} highlightColor={'#f6ede3'} />}
               </h1>
               <p>{post.content || <Skeleton baseColor={'#e5c8ab'} highlightColor={'#f6ede3'} count={3} />}</p>
             </li>
-          ))
-        )}
-      </ul>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
