@@ -13,15 +13,19 @@ function Header() {
     if (!nextStatus) setSearchStatus(false);
   }
 
+  function toggleSearch() {
+    setSearchStatus((status) => !status);
+  }
+
   return (
     <>
-      <header className='flex justify-between items-center px-4 bg-amber-900 h-16'>
+      <header className='flex justify-between items-center px-4 h-16 border-b border-light_bronze-DEFAULT'>
         <h1 className='text-3xl'>Blog</h1>
         <button className='hover:cursor-pointer p-2' onClick={toggleMenu}>
           {menuStatus ? <XIcon></XIcon> : <MenuIcon></MenuIcon>}
         </button>
       </header>
-      {menuStatus && <Navigation onToggle={toggleSearch}></Navigation>}
+      {menuStatus && <Navigation onToggle={toggleSearch}>{searchStatus && <Search></Search>}</Navigation>}
     </>
   );
 }
