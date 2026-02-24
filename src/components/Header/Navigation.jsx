@@ -1,19 +1,17 @@
 import { Search as SearchIcon } from 'lucide-react';
+import { Link } from 'react-router';
 
-function Navigation({ children, onToggle }) {
+function Navigation() {
   return (
-    <div className='flex flex-col flex-1 relative'>
-      <ul className='flex-1 text-2xl bg-amber-200 max-w-3xs p-4 space-y-2'>
-        <li>Home</li>
-        <li className='flex gap-2 w-fit cursor-pointer' onClick={onToggle}>
+    <ul className='fixed min-h-full w-full text-2xl bg-amber-200 max-w-2xs p-4 space-y-2 z-1'>
+      <li>Home</li>
+      <li>
+        <Link className='flex gap-2 w-fit cursor-pointer items-center' to='/search'>
           Search
-          <button className='cursor-pointer'>
-            <SearchIcon></SearchIcon>
-          </button>
-        </li>
-      </ul>
-      {children}
-    </div>
+          <SearchIcon></SearchIcon>
+        </Link>
+      </li>
+    </ul>
   );
 }
 

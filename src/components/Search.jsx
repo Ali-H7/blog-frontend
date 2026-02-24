@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router';
 import { Search as SearchIcon, X as XIcon } from 'lucide-react';
-import truncate from '../../helpers/truncate';
+import truncate from '../helpers/truncate';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
@@ -10,6 +11,11 @@ function Search() {
   const [isLoading, setIsLoading] = useState(false);
   const listToRender = isLoading ? new Array(3).fill({}) : posts;
   const noPostFound = !isLoading && searchQuery.length > 0 && posts.length === 0;
+  const location = useLocation();
+
+  useEffect(() => {
+    setSearchQuery('');
+  }, [location]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -47,7 +53,7 @@ function Search() {
   }, [searchQuery]);
 
   return (
-    <div className='absolute top-0 bg-cornsilk-DEFAULT flex-1 min-h-full w-screen p-4'>
+    <div className='bg-cornsilk-DEFAULT flex-1 min-h-full w-screen p-4'>
       <div className='relative'>
         <SearchIcon className='absolute left-2 top-1/2 -translate-y-1/2'></SearchIcon>
         <input
@@ -66,7 +72,7 @@ function Search() {
               setSearchQuery('');
             }}
           >
-            <XIcon className='absolute right-2 top-1/2 -translate-y-1/2'></XIcon>
+            <XIcon className='absolute right-2 top-1/2 -translate-y-1/2 hover:cursor-pointer'></XIcon>
           </button>
         )}
       </div>
