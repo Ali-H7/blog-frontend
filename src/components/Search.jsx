@@ -82,10 +82,8 @@ function Search() {
         <ul className='py-8 space-y-4'>
           {listToRender.map((post, i) => (
             <li className='p-6 rounded-lg space-y-2 bg-beige-DEFAULT' key={post.id || i}>
-              <h1 className='font-bold text-xl truncate'>
-                {post.title || <Skeleton baseColor={'#e5c8ab'} highlightColor={'#f6ede3'} />}
-              </h1>
-              <p>{post.content || <Skeleton baseColor={'#e5c8ab'} highlightColor={'#f6ede3'} count={3} />}</p>
+              <h1 className='font-bold text-xl truncate'>{post.title || <Skeleton />}</h1>
+              <p>{post.content || <Skeleton count={3} />}</p>
             </li>
           ))}
         </ul>
