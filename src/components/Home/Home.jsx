@@ -18,7 +18,7 @@ function Home() {
     fetchData();
   }, []);
   return (
-    <div className='p-8 space-y-6'>
+    <div className='p-8 flex flex-col gap-6'>
       {posts.map((post) => (
         <BlogCard key={post.id} post={post}></BlogCard>
       ))}
