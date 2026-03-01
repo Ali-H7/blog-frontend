@@ -5,12 +5,16 @@ import Navigation from './components/Header/Navigation';
 
 function App() {
   const [menuStatus, setMenuStatus] = useState(false);
+  function toggleMenu() {
+    const nextStatus = !menuStatus;
+    setMenuStatus(nextStatus);
+  }
 
   return (
-    <div className='min-h-screen h-full flex flex-col'>
+    <div className='min-h-screen h-full flex flex-col '>
       <Header menuStatus={menuStatus} setMenuStatus={setMenuStatus}></Header>
       <div className='flex flex-col flex-1 relative'>
-        {menuStatus && <Navigation></Navigation>}
+        <Navigation menuStatus={menuStatus} setMenuStatus={setMenuStatus}></Navigation>
         <Outlet />
       </div>
     </div>
