@@ -23,7 +23,7 @@ function Navigation({ menuStatus, setMenuStatus }) {
   }, [menuStatus]);
 
   return (
-    <dialog className='h-full w-full bg-black/25 z-1' ref={dialogRef} onClick={() => setMenuStatus(false)}>
+    <dialog className='h-full w-full bg-black/65 z-1' ref={dialogRef} onClick={() => setMenuStatus(false)}>
       <ul
         className='text-2xl p-4 space-y-2 h-full w-full bg-tea_green-DEFAULT max-w-2xs'
         onClick={(e) => e.stopPropagation()}
@@ -36,6 +36,9 @@ function Navigation({ menuStatus, setMenuStatus }) {
             Search
             <SearchIcon></SearchIcon>
           </Link>
+        </li>
+        <li>
+          <Link to='/tags'>Tags</Link>
         </li>
       </ul>
     </dialog>

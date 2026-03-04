@@ -11,7 +11,7 @@ function App() {
   }
 
   return (
-    <div className='min-h-screen h-full flex flex-col '>
+    <div className='min-h-screen h-full flex flex-col'>
       <Header menuStatus={menuStatus} setMenuStatus={setMenuStatus}></Header>
       <div className='flex flex-col flex-1 relative'>
         <Navigation menuStatus={menuStatus} setMenuStatus={setMenuStatus}></Navigation>
