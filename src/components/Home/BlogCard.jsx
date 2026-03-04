@@ -9,7 +9,7 @@ function BlogCard({ post }) {
   const formattedDate = dateFormat(dateCreated, 'fullDate');
   const contentPreview = truncate(content, 128);
   return (
-    <Link to={`/post/${post.slug}`}>
+    <Link to={`/posts/${post.slug}`}>
       <div className='border rounded-sm p-6 space-y-2'>
         <h1 className='font-bold text-xl'>{title}</h1>
         <p className='text-sm'>
