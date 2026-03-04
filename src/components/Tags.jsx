@@ -77,12 +77,12 @@ function Tags() {
       <h1 className='text-2xl font-bold '>Tag List</h1>
       <ul className='p-2 bg-tea_green-DEFAULT rounded-sm min-w-full flex flex-wrap justify-center gap-4'>
         {tags.map((tag) => (
-          <Link key={tag.id} to={`/tags/${tag.slug}`}>
-            <li className='border-b border-transparent hover:border-black'>
+          <li key={tag.id} className='border-b border-transparent hover:border-black'>
+            <Link to={`/tags/${tag.slug}`}>
               {tag.name}
               <span>{` [${tag._count.posts}]`}</span>
-            </li>
-          </Link>
+            </Link>
+          </li>
         ))}
       </ul>
     </div>
