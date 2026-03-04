@@ -1,6 +1,6 @@
 import { Search as SearchIcon, X as XIcon } from 'lucide-react';
 
-function SearchBar({ searchQuery, setSearchQuery, setIsLoading }) {
+function SearchBar({ searchQuery, syncSearchStates, setIsLoading }) {
   return (
     <div className='relative'>
       <SearchIcon className='absolute left-2 top-1/2 -translate-y-1/2'></SearchIcon>
@@ -11,13 +11,13 @@ function SearchBar({ searchQuery, setSearchQuery, setIsLoading }) {
         value={searchQuery}
         onChange={(e) => {
           setIsLoading(true);
-          setSearchQuery(e.target.value);
+          syncSearchStates(e.target.value);
         }}
       />
       {searchQuery.length > 0 && (
         <button
           onClick={() => {
-            setSearchQuery('');
+            syncSearchStates('');
           }}
         >
           <XIcon className='absolute right-2 top-1/2 -translate-y-1/2 hover:cursor-pointer'></XIcon>

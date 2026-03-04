@@ -1,27 +1,29 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useSearchParams } from 'react-router';
 import truncate from '../../helpers/truncate';
 import fetchData from '../../helpers/fetchData';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 
 function Search() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || '');
   const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
   const isNoPostFound = !isLoading && searchQuery.length > 0 && posts.length === 0;
-  const location = useLocation();
 
   function retry() {
     setIsLoading(true);
     setRetryCount((prev) => prev + 1);
   }
 
-  useEffect(() => {
-    setSearchQuery('');
-  }, [location]);
+  function syncSearchStates(input) {
+    if (input) setSearchParams({ query: input });
+    else setSearchParams((params) => params.delete('query'));
+    setSearchQuery(input);
+  }
 
   useEffect(() => {
     setError(null);
@@ -59,7 +61,7 @@ function Search() {
     };
   }, [searchQuery, retryCount]);
 
-  const searchProps = { searchQuery, setSearchQuery, setIsLoading };
+  const searchProps = { searchQuery, syncSearchStates, setIsLoading };
   const searchResultsProps = { error, retry, isLoading, isNoPostFound, posts };
 
   return (

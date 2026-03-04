@@ -33,7 +33,7 @@ function Tags() {
         if (!signal.aborted) setIsFetching(false);
       }
     }
-    setTimeout(() => getTags(), 500);
+    getTags();
 
     return () => {
       controller.abort();
