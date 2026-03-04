@@ -9,15 +9,14 @@ function Tags() {
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
-  const parentClasses = 'flex flex-col items-center p-8 gap-2 min-w-full';
 
   function retry() {
+    setError(null);
     setIsFetching(true);
-    setRetryCount((prev) => prev + 1);
+    setTimeout(() => setRetryCount((prev) => prev + 1), 500);
   }
 
   useEffect(() => {
-    setError(null);
     const controller = new AbortController();
     const signal = controller.signal;
     const options = { signal };
@@ -41,6 +40,7 @@ function Tags() {
   }, [retryCount]);
 
   const RetryProps = { error, retry };
+  const parentClasses = 'flex flex-col items-center p-8 gap-2 min-w-full';
 
   if (error) {
     return (
