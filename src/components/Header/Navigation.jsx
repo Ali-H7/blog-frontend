@@ -23,24 +23,26 @@ function Navigation({ menuStatus, setMenuStatus }) {
   }, [menuStatus]);
 
   return (
-    <dialog className='h-full w-full bg-black/65 z-1' ref={dialogRef} onClick={() => setMenuStatus(false)}>
-      <ul
-        className='text-2xl p-4 space-y-2 h-full w-full bg-tea_green-DEFAULT max-w-2xs'
-        onClick={(e) => e.stopPropagation()}
-      >
-        <li>
-          <Link to='/'>Home</Link>
-        </li>
-        <li>
-          <Link className='flex gap-2 w-fit cursor-pointer items-center' to='/search'>
-            Search
-            <SearchIcon></SearchIcon>
-          </Link>
-        </li>
-        <li>
-          <Link to='/tags'>Tags</Link>
-        </li>
-      </ul>
+    <dialog className='z-1 h-full w-full bg-black/65' ref={dialogRef} onClick={() => setMenuStatus(false)}>
+      <div className='bg-tea_green-DEFAULT flex h-full max-h-[calc(100vh-60px)] w-full max-w-2xs flex-col'>
+        <ul className='flex-1 space-y-2 p-4 text-2xl' onClick={(e) => e.stopPropagation()}>
+          <li>
+            <Link to='/'>Home</Link>
+          </li>
+          <li>
+            <Link className='flex w-fit cursor-pointer items-center gap-2' to='/search'>
+              Search
+              <SearchIcon></SearchIcon>
+            </Link>
+          </li>
+          <li>
+            <Link to='/tags'>Tags</Link>
+          </li>
+        </ul>
+        <Link className='w-fit self-center' to='/control-panel'>
+          <p className='p-4 text-xs'>Control Panel</p>
+        </Link>
+      </div>
     </dialog>
   );
 }
