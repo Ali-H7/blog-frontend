@@ -1,8 +1,8 @@
 import App from './App';
 import Home from './components/Home/Home';
-import Post from './components/Post';
-import Search from './components/Search';
-import Tags from './components/Tags';
+import Search from './components/Search/Search';
+import Tags from './components/Tags/Tags';
+import TagsBrowser from './components/Tags/TagsBrowser';
 
 const routes = [
   {
@@ -18,12 +18,12 @@ const routes = [
         element: <Search />,
       },
       {
-        path: 'posts/:slug',
-        element: <Post />,
-      },
-      {
         path: 'tags',
         element: <Tags />,
+      },
+      {
+        path: 'tags/:slug',
+        element: <TagsBrowser />,
       },
     ],
     // errorElement: <ErrorPage />,

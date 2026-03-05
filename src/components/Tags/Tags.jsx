@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import fetchData from '../helpers/fetchData';
+import fetchData from '../../helpers/fetchData';
 import Skeleton from 'react-loading-skeleton';
-import RetryButton from './shared/RetryButton';
+import RetryButton from '../shared/RetryButton';
 
 function Tags() {
   const [tags, setTags] = useState([]);
