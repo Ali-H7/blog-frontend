@@ -4,10 +4,11 @@ import fetchData from '../../helpers/fetchData';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
 import RetryButton from '../shared/RetryButton';
 import checkLoginStatus from '../../helpers/checkLoginStatus';
+import { Navigate, useNavigate } from 'react-router';
 
 function Login() {
   const isUserLoggedIn = checkLoginStatus();
-  if (isUserLoggedIn) window.location.replace('/cp');
+  if (isUserLoggedIn) return <Navigate to='/cp' replace />;
 
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +17,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoginFailed, setIsLoginFailed] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   function togglePasswordVisibility() {
     setIsPasswordVisisble((status) => !status);
@@ -55,7 +57,7 @@ function Login() {
     try {
       const userData = await fetchData('/login', options);
       localStorage.setItem('userData', JSON.stringify(userData));
-      window.location.replace('/cp');
+      navigate('/cp', { replace: true });
     } catch (err) {
       if (err.status === 400 || 401) {
         setIsLoginFailed(true);
