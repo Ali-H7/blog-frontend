@@ -3,6 +3,7 @@ import Home from './components/Home/Home';
 import Search from './components/Search/Search';
 import Tags from './components/Tags/Tags';
 import TagsBrowser from './components/Tags/TagsBrowser';
+import ControlPanel from './components/ControlPanel/ControlPanel';
 import Login from './components/ControlPanel/Login';
 
 const routes = [
@@ -25,6 +26,10 @@ const routes = [
       {
         path: 'tags/:slug',
         element: <TagsBrowser />,
+      },
+      {
+        path: 'cp',
+        element: <ControlPanel />,
       },
       {
         path: 'cp/login',

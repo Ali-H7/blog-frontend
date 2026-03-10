@@ -5,7 +5,9 @@ async function fetchData(route, options = {}) {
     const data = await response.json();
     if (!response.ok) {
       const { error } = data;
-      throw new Error(error || 'Something went wrong');
+      const newError = new Error(error || 'Something went wrong');
+      newError.status = response.status || 500;
+      throw newError;
     }
 
     return data;
