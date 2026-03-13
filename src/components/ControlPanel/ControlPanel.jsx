@@ -1,20 +1,18 @@
 import { Navigate, Link } from 'react-router';
-import checkLoginStatus from '../../helpers/checkLoginStatus';
+import getLoggedUser from '../../helpers/getLoggedUser';
 
 function ControlPanel() {
-  const isUserLoggedIn = checkLoginStatus();
-  if (!isUserLoggedIn) {
+  const currentUser = getLoggedUser();
+  if (!currentUser) {
     return <Navigate to='/cp/login' replace />;
   }
-  const data = localStorage.getItem('userData');
-  const { user } = JSON.parse(data);
 
   const actionList = [{ text: 'Create a Post', link: '/cp/post' }];
 
   return (
     <div className='h-full w-full max-w-3xl p-4 text-center'>
       <p>
-        Welcome <span className='font-bold'>{user.userName}</span>
+        Welcome <span className='font-bold'>{currentUser.userName}</span>
       </p>
       <p className='mb-4'>Please choose an action</p>
       <ul className='bg-beige-DEFAULT space-y-4 rounded-md p-4 font-bold'>

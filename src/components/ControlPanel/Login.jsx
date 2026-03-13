@@ -3,12 +3,12 @@ import { useState, useRef } from 'react';
 import fetchData from '../../helpers/fetchData';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
 import RetryButton from '../shared/RetryButton';
-import checkLoginStatus from '../../helpers/checkLoginStatus';
+import getLoggedUser from '../../helpers/getLoggedUser';
 import { Navigate, useNavigate } from 'react-router';
 
 function Login() {
-  const isUserLoggedIn = checkLoginStatus();
-  if (isUserLoggedIn) return <Navigate to='/cp' replace />;
+  const currentUser = getLoggedUser();
+  if (currentUser) return <Navigate to='/cp' replace />;
 
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
@@ -59,7 +59,7 @@ function Login() {
       localStorage.setItem('userData', JSON.stringify(userData));
       navigate('/cp', { replace: true });
     } catch (err) {
-      if (err.status === 400 || 401) {
+      if (err.status === 400 || err.status === 401) {
         setIsLoginFailed(true);
         setPassword('');
         setIsPasswordVisisble(false);
