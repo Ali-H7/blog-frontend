@@ -23,7 +23,7 @@ function Navigation({ menuStatus, setMenuStatus }) {
   }, [menuStatus]);
 
   return (
-    <dialog className='z-1 h-full w-full bg-black/65' ref={dialogRef} onClick={() => setMenuStatus(false)}>
+    <dialog className='z-100 h-full w-full bg-black/65' ref={dialogRef} onClick={() => setMenuStatus(false)}>
       <div className='bg-tea_green-DEFAULT flex h-full max-h-[calc(100vh-60px)] w-full max-w-2xs flex-col'>
         <ul className='flex-1 space-y-2 p-4 text-2xl' onClick={(e) => e.stopPropagation()}>
           <li>
@@ -39,7 +39,7 @@ function Navigation({ menuStatus, setMenuStatus }) {
             <Link to='/tags'>Tags</Link>
           </li>
         </ul>
-        <Link className='w-fit self-center' to='/control-panel'>
+        <Link className='w-fit self-center' to='/cp'>
           <p className='p-4 text-xs'>Control Panel</p>
         </Link>
       </div>
