@@ -7,6 +7,11 @@ import { LoaderCircle as LoadingIcon, CircleX as ErrorIcon, X as CloseIcon } fro
 import { Navigate, useNavigate } from 'react-router';
 import RetryButton from './shared/RetryButton';
 
+const KNOWN_ERRORS = {
+  401: "You don't have permission to create a post",
+  409: 'A post with this title already exists. Kindly choose a different name.',
+};
+
 function CreatePost() {
   const currentUser = getLoggedUser();
   if (!currentUser) {
@@ -23,11 +28,6 @@ function CreatePost() {
   const [attemptCount, setAttemptCount] = useState(0);
   const navigate = useNavigate();
   const dialogRef = useRef(null);
-
-  const knownErrors = {
-    401: "You don't have permission to create a post",
-    409: 'A post with this title already exists. Kindly choose a different name.',
-  };
 
   useEffect(() => {
     if (attemptCount > 3) throw new Error('Something went wrong');
@@ -76,9 +76,9 @@ function CreatePost() {
       navigate(`/posts/${post.slug}`, { replace: true });
     } catch (err) {
       const statusCode = err.status;
-      const isErrorKnown = Object.hasOwn(knownErrors, statusCode);
+      const isErrorKnown = Object.hasOwn(KNOWN_ERRORS, statusCode);
       if (isErrorKnown) {
-        setAlert(knownErrors[statusCode]);
+        setAlert(KNOWN_ERRORS[statusCode]);
       } else {
         setError(err.message);
       }

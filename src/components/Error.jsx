@@ -9,20 +9,16 @@ function Error() {
   const message = error.status === 404 ? '404 Error - Page not found.' : 'Something went wrong';
 
   useEffect(() => {
+    if (count <= 0) {
+      navigate('/', { replace: true });
+      return;
+    }
     const timer = setInterval(() => {
-      setCount((prev) => {
-        if (prev <= 0) {
-          clearInterval(timer);
-          navigate('/');
-          return 0;
-        } else {
-          return prev - 1;
-        }
-      });
+      setCount((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [count]);
 
   return (
     <Layout>
