@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Layout from './Layout';
 
 function Error() {
-  const [count, setCount] = useState(1000);
+  const [count, setCount] = useState(10);
   const navigate = useNavigate();
   const error = useRouteError();
   const message = error.status === 404 ? '404 Error - Page not found.' : 'Something went wrong';
