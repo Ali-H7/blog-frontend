@@ -23,7 +23,7 @@ function Home() {
     const options = { signal };
     async function getPosts() {
       try {
-        const data = await fetchData('/', options);
+        const data = await fetchData('/posts', options);
         const posts = data.posts;
         setPosts(posts);
       } catch (err) {
