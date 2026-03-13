@@ -6,6 +6,7 @@ import TagsBrowser from './components/Tags/TagsBrowser';
 import ControlPanel from './components/ControlPanel/ControlPanel';
 import Login from './components/ControlPanel/Login';
 import CreatePost from './components/CreatePost';
+import Error from './components/Error';
 
 const routes = [
   {
@@ -41,7 +42,7 @@ const routes = [
         element: <CreatePost />,
       },
     ],
-    // errorElement: <ErrorPage />,
+    errorElement: <Error />,
   },
 ];
 
