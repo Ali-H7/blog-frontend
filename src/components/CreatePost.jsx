@@ -5,6 +5,7 @@ import getLoggedUser from '../helpers/getLoggedUser';
 import fetchData from '../helpers/fetchData';
 import { LoaderCircle as LoadingIcon, CircleX as ErrorIcon, X as CloseIcon } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router';
+import RetryButton from './shared/RetryButton';
 
 function CreatePost() {
   const currentUser = getLoggedUser();
@@ -19,8 +20,18 @@ function CreatePost() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [alert, setAlert] = useState(null);
+  const [attemptCount, setAttemptCount] = useState(0);
   const navigate = useNavigate();
   const dialogRef = useRef(null);
+
+  const knownErrors = {
+    401: "You don't have permission to create a post",
+    409: 'A post with this title already exists. Kindly choose a different name.',
+  };
+
+  useEffect(() => {
+    if (attemptCount > 3) throw new Error('Something went wrong');
+  }, [attemptCount]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -35,7 +46,12 @@ function CreatePost() {
     dialog.showModal();
   }, [alert]);
 
+  function retry() {
+    setError(null);
+  }
+
   async function handlePostCreation() {
+    setAttemptCount((prev) => prev + 1);
     setIsLoading(true);
     const controller = new AbortController();
     const signal = controller.signal;
@@ -59,10 +75,10 @@ function CreatePost() {
       const { post } = data;
       navigate(`/posts/${post.slug}`, { replace: true });
     } catch (err) {
-      if (err.status === 401) {
-        setAlert("You don't have permission to create a post");
-      } else if (err.status === 409) {
-        setAlert('A post with this title already exists. Kindly choose a different name.');
+      const statusCode = err.status;
+      const isErrorKnown = Object.hasOwn(knownErrors, statusCode);
+      if (isErrorKnown) {
+        setAlert(knownErrors[statusCode]);
       } else {
         setError(err.message);
       }
@@ -71,6 +87,15 @@ function CreatePost() {
         setIsLoading(false);
       }
     }
+  }
+
+  if (error) {
+    const errorProps = { error, retry };
+    return (
+      <div className='p-8'>
+        <RetryButton {...errorProps} />
+      </div>
+    );
   }
 
   return (
