@@ -1,56 +1,22 @@
-import { useState, useEffect } from 'react';
+import useFetch from '../../hooks/useFetch';
 import BlogCard from './BlogCard';
 import Skeleton from 'react-loading-skeleton';
-import fetchData from '../../helpers/fetchData';
 import RetryButton from '../shared/RetryButton';
 
 function Home() {
-  const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const isNoPostFound = !isLoading && posts.length === 0;
-
-  function retry() {
-    setError(null);
-    setIsLoading(true);
-    setTimeout(() => setRetryCount((prev) => prev + 1), 500);
-  }
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const options = { signal };
-    async function getPosts() {
-      try {
-        const data = await fetchData('/posts', options);
-        const posts = data.posts;
-        setPosts(posts);
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-        setError(err.message);
-      } finally {
-        if (!signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    getPosts();
-  }, [retryCount]);
-
-  const RetryProps = { error, retry };
+  const { error, loading, data, retry } = useFetch('/posts');
+  const retryProps = { error, retry };
   const parentClasses = 'p-8 flex flex-col gap-6';
 
   if (error) {
     return (
       <div className={parentClasses}>
-        <RetryButton {...RetryProps} />
+        <RetryButton {...retryProps} />
       </div>
     );
   }
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className={parentClasses}>
         {new Array(5).fill({}).map((_, i) => (
@@ -60,7 +26,7 @@ function Home() {
     );
   }
 
-  if (isNoPostFound) {
+  if (data.posts.length === 0) {
     return (
       <div className={parentClasses}>
         <p className='text-center'>No Posts Found</p>
@@ -70,7 +36,7 @@ function Home() {
 
   return (
     <div className={parentClasses}>
-      {posts.map((post) => (
+      {data.posts.map((post) => (
         <BlogCard key={post.id} post={post}></BlogCard>
       ))}
     </div>
