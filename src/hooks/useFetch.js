@@ -2,9 +2,16 @@ import { useState, useEffect } from 'react';
 
 function useFetch(route, options = {}) {
   const API = import.meta.env.VITE_API;
+  const [retryCount, setRetryCount] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+
+  function retry() {
+    setError(null);
+    setLoading(true);
+    setTimeout(() => setRetryCount((prev) => prev + 1), 500);
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -15,9 +22,9 @@ function useFetch(route, options = {}) {
         const response = await fetch(`${API}${route}`, { ...options, signal });
         const json = await response.json();
         if (!response.ok) {
-          const newError = new Error(json.error || 'Something went wrong');
-          newError.status = response.status || 500;
-          throw newError;
+          const serverErr = new Error(json.error || 'Something went wrong');
+          serverErr.status = response.status || 500;
+          throw serverErr;
         }
         setData(json);
       } catch (err) {
@@ -32,8 +39,12 @@ function useFetch(route, options = {}) {
     }
 
     fetchData();
-  }, []);
 
-  return { error, loading, data };
+    return () => {
+      controller.abort();
+    };
+  }, [retryCount]);
+
+  return { error, loading, data, retry };
 }
 export default useFetch;
