@@ -26,7 +26,8 @@ function useFetch(route, additionalConfig = {}) {
 
     try {
       const response = await fetch(`${API}${route}`, { ...currentOptions, signal });
-      const json = await response.json();
+      const blob = await response.text();
+      const json = blob ? JSON.parse(blob) : {};
       if (!response.ok) {
         const serverErr = new Error(json.error || 'Something went wrong');
         serverErr.status = response.status || 500;

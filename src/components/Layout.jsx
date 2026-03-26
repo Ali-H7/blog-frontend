@@ -9,7 +9,7 @@ function Layout({ children }) {
   return (
     <div className='flex h-full min-h-screen flex-col'>
       <Header {...props}></Header>
-      <div className='relative flex flex-1 flex-col items-center'>
+      <div className='relative flex flex-1 flex-col'>
         <Navigation {...props}></Navigation>
         {children}
       </div>
