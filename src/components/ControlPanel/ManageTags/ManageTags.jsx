@@ -2,9 +2,11 @@ import { useState } from 'react';
 import useFetch from '../../../hooks/useFetch';
 import Dialog from '../../shared/Dialog';
 import DeleteTagDialog from './DeleteTagDialog';
-import { X as XIcon } from 'lucide-react';
 import AddTag from './AddTag';
+import TagList from './TagList';
 import getLoggedUser from '../../../helpers/getLoggedUser';
+import Alert from '../../shared/Alert';
+import RetryButton from '../../shared/RetryButton';
 
 function ManageTags() {
   const currentUser = getLoggedUser();
@@ -19,8 +21,9 @@ function ManageTags() {
     },
   };
 
-  const { error, loading, data, retry, triggerFetch } = useFetch('/admin/tags', { options, fetch: true });
+  const { error, loading, data, setData, retry } = useFetch('/admin/tags', { options, fetch: true });
   const addFetch = useFetch('/admin/tags', { fetch: false });
+  const deleteFetch = useFetch('/admin/tags', { fetch: false });
 
   const [selectedTag, setSelectedTag] = useState({ id: '', name: '' });
 
@@ -29,39 +32,33 @@ function ManageTags() {
 
   return (
     <div className='space-y-4 p-8'>
-      <AddTag currentUser={currentUser} addFetch={addFetch} tagFetch={triggerFetch} />
-      <div className='space-y-4'>
-        <h1 className='text-center text-2xl font-bold'>Tag List</h1>
-        <div className='bg-tea_green-DEFAULT flex flex-wrap justify-center gap-4 rounded-md p-4'>
-          {data?.tags.map((tag) => (
-            <div
-              key={tag.id}
-              className='bg-beige-DEFAULT flex max-w-fit items-center justify-between gap-2 rounded-md p-2'
-            >
-              <p>{tag.name}</p>
-              <button
-                className='h-fit w-fit hover:cursor-pointer hover:text-red-500'
-                onClick={() => setSelectedTag({ id: tag.id, name: tag.name })}
-              >
-                <XIcon />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      <AddTag currentUser={currentUser} addFetch={addFetch} setData={setData} tagsFetchLoading={loading} />
+      {!error ? (
+        <TagList data={data} loading={loading} setSelectedTag={setSelectedTag} />
+      ) : (
+        <RetryButton error={error} retry={retry} />
+      )}
       <Dialog
         position='top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2'
         dialogStatus={isDialogOpen}
+        disableEscKey={deleteFetch.loading}
         onClose={onDialogClose}
       >
         <DeleteTagDialog
           currentUser={currentUser}
-          tagFetch={triggerFetch}
+          deleteFetch={deleteFetch}
+          setData={setData}
           onDialogClose={onDialogClose}
           selectedTag={selectedTag}
         />
       </Dialog>
+      {deleteFetch.error && (
+        <Alert
+          position={'top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2'}
+          dialogStatus={deleteFetch.error}
+          onClose={() => deleteFetch.setError(null)}
+        />
+      )}
     </div>
   );
 }

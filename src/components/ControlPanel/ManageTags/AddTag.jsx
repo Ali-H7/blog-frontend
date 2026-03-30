@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Plus as AddIcon } from 'lucide-react';
+import { Plus as AddIcon, LoaderCircle as LoadingIcon } from 'lucide-react';
+import Alert from '../../shared/Alert';
 
-function AddTag({ currentUser, addFetch, tagFetch }) {
+function AddTag({ currentUser, addFetch, setData, tagsFetchLoading }) {
   const [tag, setTag] = useState('');
-  const { error, loading, data, retry, triggerFetch } = addFetch;
-  console.log(error);
+  const [alertMsg, setAlertMsg] = useState('');
+  const { loading, triggerFetch } = addFetch;
+
   async function add() {
     const options = {
       method: 'POST',
@@ -16,9 +18,19 @@ function AddTag({ currentUser, addFetch, tagFetch }) {
         name: tag,
       }),
     };
-    await triggerFetch({ options });
-    await tagFetch();
-    setTag('');
+
+    try {
+      const response = await triggerFetch({ options });
+      setData((tagObj) => ({
+        ...tagObj,
+        tags: [response.tag, ...tagObj.tags],
+      }));
+      setTag('');
+    } catch (err) {
+      const { validationErrors } = err;
+      if (validationErrors?.length > 0) setAlertMsg(validationErrors[0].msg);
+      else setAlertMsg(err.message);
+    }
   }
 
   return (
@@ -33,17 +45,31 @@ function AddTag({ currentUser, addFetch, tagFetch }) {
           placeholder='Tag Name'
           value={tag}
           onChange={(e) => setTag(e.target.value)}
-          disabled={false}
+          disabled={loading || tagsFetchLoading}
           required
         />
         <button
           className='bg-papaya_whip-400 hover:bg-papaya_whip-300 flex items-center justify-center gap-2 rounded-md p-2 hover:cursor-pointer'
           onClick={add}
+          disabled={loading || tagsFetchLoading}
         >
-          <p>Add</p>
-          <AddIcon />
+          {loading ? (
+            <LoadingIcon className='animate-spin' />
+          ) : (
+            <>
+              <p>Add</p>
+              <AddIcon />
+            </>
+          )}
         </button>
       </div>
+      {alertMsg && (
+        <Alert
+          position={'top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2'}
+          dialogStatus={alertMsg}
+          onClose={() => setAlertMsg('')}
+        />
+      )}
     </div>
   );
 }

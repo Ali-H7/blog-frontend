@@ -10,6 +10,8 @@ function useFetch(route, additionalConfig = {}) {
   const [loading, setLoading] = useState(config.current.fetch);
 
   function retry() {
+    setLoading(true);
+    setError(null);
     setTimeout(() => setRetryCount((prev) => prev + 1), 500);
   }
 
@@ -50,6 +52,7 @@ function useFetch(route, additionalConfig = {}) {
   }
 
   useEffect(() => {
+    if (retryCount > 3) throw new Error('Something went wrong');
     if (!config.current.fetch) return;
 
     triggerFetch(config.current);
@@ -59,7 +62,7 @@ function useFetch(route, additionalConfig = {}) {
     };
   }, [retryCount]);
 
-  return { error, loading, data, setData, retry, triggerFetch };
+  return { error, setError, loading, data, setData, retry, retryCount, triggerFetch };
 }
 
 export default useFetch;

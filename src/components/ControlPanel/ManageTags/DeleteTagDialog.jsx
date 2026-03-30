@@ -1,7 +1,7 @@
-import useFetch from '../../../hooks/useFetch';
+import { LoaderCircle as LoadingIcon } from 'lucide-react';
 
-function DeleteTagDialog({ currentUser, tagFetch, onDialogClose, selectedTag }) {
-  const { error, loading, data, retry, triggerFetch } = useFetch('/admin/tags', { fetch: false });
+function DeleteTagDialog({ currentUser, deleteFetch, setData, onDialogClose, selectedTag }) {
+  const { loading, triggerFetch } = deleteFetch;
 
   async function deleteTag() {
     const options = {
@@ -14,11 +14,20 @@ function DeleteTagDialog({ currentUser, tagFetch, onDialogClose, selectedTag }) 
         id: selectedTag.id,
       }),
     };
-    await triggerFetch({ options });
-    await tagFetch();
-    console.log(error);
-    if (!error) onDialogClose();
+
+    try {
+      await triggerFetch({ options });
+      setData((tagObj) => {
+        const tags = tagObj.tags.filter((tag) => tag.id !== selectedTag.id);
+        return { tags };
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      onDialogClose();
+    }
   }
+
   return (
     <div className='bg-papaya_whip-400 w-full max-w-3xl space-y-4 rounded-md p-4'>
       <p className='text-center'>
@@ -28,10 +37,15 @@ function DeleteTagDialog({ currentUser, tagFetch, onDialogClose, selectedTag }) 
         <button
           className='bg-tea_green-300 hover:bg-tea_green-200 rounded-md p-2 hover:cursor-pointer'
           onClick={deleteTag}
+          disabled={loading}
         >
-          Confirm
+          {loading ? <LoadingIcon className='animate-spin' /> : <p>Confirm</p>}
         </button>
-        <button className='rounded-md bg-red-400 p-2 hover:cursor-pointer hover:bg-red-500' onClick={onDialogClose}>
+        <button
+          className='rounded-md bg-red-400 p-2 hover:cursor-pointer hover:bg-red-500'
+          onClick={onDialogClose}
+          disabled={loading}
+        >
           Cancel
         </button>
       </div>
