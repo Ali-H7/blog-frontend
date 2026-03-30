@@ -10,12 +10,12 @@ function useFetch(route, additionalConfig = {}) {
   const [loading, setLoading] = useState(config.current.fetch);
 
   function retry() {
-    setError(null);
-    setLoading(true);
     setTimeout(() => setRetryCount((prev) => prev + 1), 500);
   }
 
   async function triggerFetch(updatedConfig = {}) {
+    if (!loading) setLoading(true);
+    if (error) setError(null);
     if (controllerRef.current) controllerRef.current.abort();
     const controller = new AbortController();
     const signal = controller.signal;
@@ -29,15 +29,19 @@ function useFetch(route, additionalConfig = {}) {
       const blob = await response.text();
       const json = blob ? JSON.parse(blob) : {};
       if (!response.ok) {
-        const serverErr = new Error(json.error || 'Something went wrong');
+        const { error, validationErrors } = json;
+        const serverErr = new Error(error || 'Something went wrong');
         serverErr.status = response.status || 500;
+        serverErr.validationErrors = validationErrors ?? [];
         throw serverErr;
       }
       setData(json);
+      return json;
     } catch (err) {
       if (err.name === 'AbortError') return;
       if (err.message === 'Failed to fetch') err.message = 'Cannot reach the server';
       setError(err.message);
+      throw err;
     } finally {
       if (!signal.aborted) {
         setLoading(false);
@@ -55,7 +59,7 @@ function useFetch(route, additionalConfig = {}) {
     };
   }, [retryCount]);
 
-  return { error, loading, data, retry, triggerFetch };
+  return { error, loading, data, setData, retry, triggerFetch };
 }
 
 export default useFetch;
