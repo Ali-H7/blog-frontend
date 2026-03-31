@@ -7,6 +7,9 @@ import Switch from 'react-switch';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
 import RetryButton from './shared/RetryButton';
 import Alert from './shared/Alert';
+import Select from 'react-select';
+import Skeleton from 'react-loading-skeleton';
+import transformTagsForSelection from '../helpers/transformTagsForSelection';
 
 const KNOWN_ERRORS = {
   401: "You don't have permission to create a post",
@@ -19,6 +22,11 @@ function CreatePost() {
     return <Navigate to='/cp/login' replace />;
   }
 
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${currentUser.token}`,
+  };
+
   const API = import.meta.env.VITE_TINYMCE_API;
   const [postTitle, setPostTitle] = useState('');
   const [postContent, setPostContent] = useState({
@@ -26,9 +34,12 @@ function CreatePost() {
     formattedText: '<p>Type post content here!</p>',
   });
   const [published, setPublished] = useState(false);
+  const [selectedOption, setSelectedOption] = useState([]);
   const [alert, setAlert] = useState(null);
   const { error, setError, loading, setRetryCount, triggerFetch } = useFetch('/admin/posts', { fetch: false });
+  const tagsFetch = useFetch('/admin/tags', { options: { headers }, fetch: true });
   const navigate = useNavigate();
+  const options = transformTagsForSelection(tagsFetch.data);
 
   function reload() {
     setError(null);
@@ -38,15 +49,15 @@ function CreatePost() {
   async function handlePostCreation() {
     const options = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${currentUser.token}`,
-      },
+      headers,
       body: JSON.stringify({
         title: postTitle,
         rawText: postContent.rawText,
         formattedText: postContent.formattedText,
         published,
+        tags: selectedOption.map((tag) => ({
+          id: tag.value,
+        })),
         userId: currentUser.id,
       }),
     };
@@ -124,6 +135,18 @@ function CreatePost() {
           value={postContent.rawText}
           readonly={loading}
         />
+        {tagsFetch.loading ? (
+          <Skeleton height={'38px'} />
+        ) : (
+          <Select
+            isMulti
+            defaultValue={selectedOption}
+            onChange={setSelectedOption}
+            options={options}
+            placeholder={'Select Tags'}
+            noOptionsMessage={() => 'No tags available, you can add using the manage tags page'}
+          />
+        )}
         <div className='flex items-center gap-2 self-end'>
           <Switch
             checked={published}
@@ -152,7 +175,7 @@ function CreatePost() {
           {loading && <LoadingIcon className='animate-spin' />}
         </button>
       </form>
-      <Alert dialogStatus={alert} onClose={() => setAlert(null)} />
+      {alert && <Alert dialogStatus={alert} onClose={() => setAlert(null)} />}
     </div>
   );
 }
