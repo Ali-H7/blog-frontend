@@ -2,7 +2,7 @@ import Dialog from './Dialog';
 import { CircleX as ErrorIcon, X as CloseIcon } from 'lucide-react';
 
 function Alert({
-  position = 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+  position = 'top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2',
   dialogStatus,
   onClose,
   disableEscKey = false,
