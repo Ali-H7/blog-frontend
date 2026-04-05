@@ -29,9 +29,10 @@ function CreatePost() {
 
   const API = import.meta.env.VITE_TINYMCE_API;
   const [postTitle, setPostTitle] = useState('');
+  const initialValue = 'Type post content here!';
   const [postContent, setPostContent] = useState({
-    rawText: 'Type post content here!',
-    formattedText: '<p>Type post content here!</p>',
+    rawText: initialValue,
+    formattedText: `<div>${initialValue}</div>`,
   });
   const [published, setPublished] = useState(false);
   const [selectedOption, setSelectedOption] = useState([]);
@@ -132,7 +133,7 @@ function CreatePost() {
             toolbar:
               'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
           }}
-          value={postContent.rawText}
+          initialValue={initialValue}
           readonly={loading}
         />
         {tagsFetch.loading ? (
@@ -179,4 +180,5 @@ function CreatePost() {
     </div>
   );
 }
+
 export default CreatePost;
