@@ -1,7 +1,9 @@
 import Skeleton from 'react-loading-skeleton';
 import RetryButton from '../shared/RetryButton';
+import { Link } from 'react-router';
 
 function SearchResults({ error, retry, isLoading, isNoPostFound, posts }) {
+  console.log(posts);
   if (error) {
     const RetryButtonProps = { error, retry };
     return (
@@ -13,9 +15,9 @@ function SearchResults({ error, retry, isLoading, isNoPostFound, posts }) {
 
   if (isLoading) {
     return (
-      <ul className='py-8 space-y-4'>
+      <ul className='space-y-4 py-8'>
         {new Array(3).fill({}).map((_, i) => (
-          <li className='p-6 rounded-lg space-y-2 bg-tea_green-DEFAULT' key={i}>
+          <li className='bg-tea_green-DEFAULT space-y-2 rounded-lg p-6' key={i}>
             <Skeleton />
             <Skeleton count={3} />
           </li>
@@ -26,16 +28,20 @@ function SearchResults({ error, retry, isLoading, isNoPostFound, posts }) {
 
   if (isNoPostFound) {
     return (
-      <p className='text-center py-8'>We couldn't find any posts for that search. Maybe try different keywords?</p>
+      <p className='py-8 text-center'>We couldn't find any posts for that search. Maybe try different keywords?</p>
     );
   }
 
   return (
-    <ul className='py-8 space-y-4'>
+    <ul className='space-y-4 py-8'>
       {posts.map((post) => (
-        <li className='p-6 rounded-lg space-y-2 bg-tea_green-DEFAULT' key={post.id}>
-          <h1 className='font-bold text-xl truncate'>{post.title}</h1>
-          <p>{post.content}</p>
+        <li key={post.id}>
+          <Link to={`/posts/${post.slug}`}>
+            <div className='bg-tea_green-DEFAULT rounded-lg p-6'>
+              <h1 className='mb-2 truncate text-xl font-bold'>{post.title}</h1>
+              <p>{post.content}</p>
+            </div>
+          </Link>
         </li>
       ))}
     </ul>

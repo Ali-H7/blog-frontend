@@ -36,7 +36,7 @@ function Search() {
       try {
         const data = await fetchData(`/posts/search?query=${searchQuery}`, options);
         const posts = data.posts;
-        const formattedPosts = posts.map((post) => ({ ...post, content: truncate(post.content, 96) }));
+        const formattedPosts = posts.map((post) => ({ ...post, content: truncate(post.rawText, 96) }));
         setPosts(formattedPosts);
       } catch (err) {
         if (err.name === 'AbortError') return;
@@ -65,7 +65,7 @@ function Search() {
   const searchResultsProps = { error, retry, isLoading, isNoPostFound, posts };
 
   return (
-    <div className='flex-1 min-h-full w-screen p-4'>
+    <div className='min-h-full w-full flex-1 px-4 py-8'>
       <SearchBar {...searchProps} />
       <SearchResults {...searchResultsProps} />
     </div>
