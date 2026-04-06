@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import useFetch from '../../hooks/useFetch';
-import getLoggedUser from '../../helpers/getLoggedUser';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
 import Alert from '../shared/Alert';
 
-function PostComment({ postId, updateComments }) {
+function PostComment({ comment, setComment, postId, updateComments, user }) {
   const { loading, setError, triggerFetch } = useFetch('/comments', { fetch: false });
-  const [comment, setComment] = useState('');
   const characterCount = `${comment.length} / 160 ${comment.length > 160 ? '!' : ''}`;
   const [alert, setAlert] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const user = getLoggedUser();
     const options = {
       method: 'POST',
       headers: {
@@ -39,7 +36,7 @@ function PostComment({ postId, updateComments }) {
     <div>
       <form onSubmit={handleSubmit}>
         <textarea
-          className='bg-tea_green-DEFAULT relative mb-4 min-h-32 w-full rounded-md border p-2 focus:border-2'
+          className='bg-tea_green-DEFAULT relative mb-4 min-h-32 w-full rounded-md border p-2 focus:border-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
           type='text'
           name='comment'
           id='comment'
@@ -51,7 +48,11 @@ function PostComment({ postId, updateComments }) {
         />
         <div className='flex justify-between'>
           <p className={comment.length > 160 ? 'text-red-500' : undefined}>{characterCount}</p>
-          <button className='bg-tea_green-500 flex gap-4 rounded-md p-2 font-bold' type='submit' disabled={loading}>
+          <button
+            className='bg-tea_green-500 hover:bg-tea_green-400 flex gap-4 rounded-md p-2 font-bold hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
+            type='submit'
+            disabled={loading}
+          >
             <p>Post Comment</p>
             {loading && <LoadingIcon className='animate-spin' />}
           </button>
