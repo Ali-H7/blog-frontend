@@ -1,5 +1,6 @@
 import App from './App';
 import Home from './components/Home/Home';
+import Post from './components/Post/Post';
 import Search from './components/Search/Search';
 import Tags from './components/Tags/Tags';
 import TagsBrowser from './components/Tags/TagsBrowser';
@@ -8,6 +9,7 @@ import Login from './components/ControlPanel/Login';
 import CreatePost from './components/CreatePost';
 import ManageTags from './components/ControlPanel/ManageTags/ManageTags';
 import Error from './components/Error';
+import SignUp from './components/UserForms/SignUp';
 
 const routes = [
   {
@@ -17,6 +19,18 @@ const routes = [
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: '/login',
+        element: <Login />,
+      },
+      {
+        path: '/signup',
+        element: <SignUp />,
+      },
+      {
+        path: 'posts/:slug',
+        element: <Post />,
       },
       {
         path: 'search',
@@ -34,10 +48,7 @@ const routes = [
         path: 'cp',
         element: <ControlPanel />,
       },
-      {
-        path: 'cp/login',
-        element: <Login />,
-      },
+
       {
         path: 'cp/post',
         element: <CreatePost />,

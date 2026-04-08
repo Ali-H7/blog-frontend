@@ -62,7 +62,7 @@ function useFetch(route, additionalConfig = {}) {
     };
   }, [retryCount]);
 
-  return { error, setError, loading, data, setData, retry, retryCount, setRetryCount, triggerFetch };
+  return { error, setError, loading, setLoading, data, setData, retry, retryCount, setRetryCount, triggerFetch };
 }
 
 export default useFetch;
