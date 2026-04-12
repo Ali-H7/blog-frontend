@@ -7,6 +7,7 @@ function PostComment({ comment, setComment, postId, updateComments, user }) {
   const { loading, setError, triggerFetch } = useFetch('/comments', { fetch: false });
   const characterCount = `${comment.length} / 160 ${comment.length > 160 ? '!' : ''}`;
   const [alert, setAlert] = useState(null);
+  const isBtnDisabled = loading || comment.length <= 0 || comment.length > 160;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,7 +52,7 @@ function PostComment({ comment, setComment, postId, updateComments, user }) {
           <button
             className='bg-tea_green-500 hover:bg-tea_green-400 flex gap-4 rounded-md p-2 font-bold hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
             type='submit'
-            disabled={loading}
+            disabled={isBtnDisabled}
           >
             <p>Post Comment</p>
             {loading && <LoadingIcon className='animate-spin' />}
