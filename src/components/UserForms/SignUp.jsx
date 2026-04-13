@@ -5,6 +5,8 @@ import { useState } from 'react';
 import PasswordInput from './PasswordInput';
 import useFetch from '../../hooks/useFetch';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
+import RetryButton from '../shared/RetryButton';
+import { Link } from 'react-router';
 
 function SignUp() {
   const currentUser = getLoggedUser();
@@ -95,7 +97,7 @@ function SignUp() {
       <div className='w-full max-w-md'>
         <h2 className='mb-2 text-center text-3xl font-bold'>Sign up</h2>
         <p className='p-4 text-center'>To leave comments with your desired username</p>
-        <div className='bg-tea_green-700 mt-12 rounded-md p-8'>
+        <div className='bg-tea_green-700 mt-12 space-y-8 rounded-md p-8'>
           <form
             className='space-y-8'
             onSubmit={(e) => {
@@ -115,6 +117,12 @@ function SignUp() {
               {loading && <LoadingIcon className='animate-spin' />}
             </button>
           </form>
+          <p className='text-center'>
+            Already have an account?
+            <Link to='/login'>
+              <span className='font-bold'> Log in</span>
+            </Link>
+          </p>
         </div>
       </div>
     </div>
