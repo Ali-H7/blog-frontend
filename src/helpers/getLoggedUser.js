@@ -10,12 +10,12 @@ function getLoggedUser() {
     const isValid = timeNow < exp;
     if (!isValid) {
       localStorage.removeItem('userData');
-      return false;
+      return null;
     }
     return { ...user, token };
   } catch (error) {
     localStorage.removeItem('userData');
-    return false;
+    return null;
   }
 }
 
