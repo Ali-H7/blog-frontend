@@ -1,4 +1,4 @@
-function UserNameInput({ userName, setUserName, error }) {
+function UserNameInput({ userName, setUserName, error = undefined }) {
   const additionalStyles = error ? 'border-red-500 focus:outline-0' : '';
   return (
     <div>

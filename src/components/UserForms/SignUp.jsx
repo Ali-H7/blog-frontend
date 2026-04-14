@@ -1,6 +1,6 @@
 import UserNameInput from './UserNameInput';
 import { Navigate, useNavigate } from 'react-router';
-import getLoggedUser from '../../helpers/getLoggedUser';
+import { useAuth } from '../../App';
 import { useState } from 'react';
 import PasswordInput from './PasswordInput';
 import useFetch from '../../hooks/useFetch';
@@ -9,8 +9,8 @@ import RetryButton from '../shared/RetryButton';
 import { Link } from 'react-router';
 
 function SignUp() {
-  const currentUser = getLoggedUser();
-  if (currentUser) return <Navigate to='/' replace />;
+  const { user } = useAuth();
+  if (user) return <Navigate to='/' replace />;
 
   const initialValidationErrors = {
     userName: '',

@@ -27,7 +27,6 @@ function PasswordInput({ options }) {
           placeholder={options.placeholder}
           value={options.value}
           onChange={(e) => options.setter(e.target.value)}
-          autoComplete='new-password'
           required
         />
         <button

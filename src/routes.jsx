@@ -5,7 +5,7 @@ import Search from './components/Search/Search';
 import Tags from './components/Tags/Tags';
 import TagsBrowser from './components/Tags/TagsBrowser';
 import ControlPanel from './components/ControlPanel/ControlPanel';
-import Login from './components/ControlPanel/Login';
+import Login from './components/UserForms/Login';
 import CreatePost from './components/CreatePost';
 import ManageTags from './components/ControlPanel/ManageTags/ManageTags';
 import Error from './components/Error';
