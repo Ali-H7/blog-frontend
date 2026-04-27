@@ -1,12 +1,14 @@
 import TimeAgo from 'timeago-react';
 import UserAvatar from './UserAvatar';
 import PostComment from './PostComment';
-import getLoggedUser from '../../helpers/getLoggedUser';
+import DeleteComment from './DeleteComment';
+import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
 function CommentList({ postId, updateComments, comments }) {
-  const user = getLoggedUser();
+  const { user } = useAuth();
+  const isAdmin = user && user.isAdmin;
   const [comment, setComment] = useState('');
   const postCommentProps = { comment, setComment, postId, updateComments, user };
   return (
@@ -17,7 +19,11 @@ function CommentList({ postId, updateComments, comments }) {
         </h1>
         {!user && comment.length > 0 && (
           <p className='mt-2 text-red-500'>
-            You're currently commenting as a guest,
+            You're commenting as a guest,
+            <span className='font-bold'>
+              <Link to='/login'> Login </Link>
+            </span>
+            or
             <span className='font-bold'>
               <Link to='/signup'> Signup </Link>
             </span>
@@ -29,14 +35,23 @@ function CommentList({ postId, updateComments, comments }) {
       {comments.length > 0 ? (
         <div className='space-y-8'>
           {comments.map((comment) => (
-            <div key={comment.id} className='space-y-2'>
+            <div key={comment.id} className='border-tea_green-400 space-y-2 border-b-2 pb-4'>
               <div className='flex items-center gap-1'>
-                <UserAvatar letter={!comment.user ? 'G' : comment.user.userName[0]} />
-                <p>{!comment.user ? 'Guest' : comment.user.userName}</p>
-                <p>·</p>
-                <TimeAgo datetime={comment.dateCreated} />
+                <UserAvatar name={!comment.user ? 'Guest' : comment.user.userName} />
+                <p className='ml-3'>{!comment.user ? 'Guest' : comment.user.userName}</p>
               </div>
-              <p className='ml-2'>{comment.content}</p>
+              <div className='ml-2'>
+                <p className='mb-4'>{comment.content}</p>
+                <div className='flex gap-2'>
+                  <TimeAgo datetime={comment.dateCreated} />
+                  {isAdmin && (
+                    <>
+                      <p>·</p>
+                      <DeleteComment commentId={comment.id} updateComments={updateComments} user={user} />
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>

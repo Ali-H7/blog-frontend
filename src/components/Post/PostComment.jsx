@@ -26,7 +26,7 @@ function PostComment({ comment, setComment, postId, updateComments, user }) {
     try {
       const userComment = await triggerFetch({ options });
       setComment('');
-      updateComments(userComment);
+      updateComments({ data: userComment, operation: 'ADD' });
     } catch (err) {
       setError(null);
       setAlert('Something went wrong... Try Again');
