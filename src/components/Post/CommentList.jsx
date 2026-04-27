@@ -1,7 +1,7 @@
 import TimeAgo from 'timeago-react';
 import UserAvatar from './UserAvatar';
 import PostComment from './PostComment';
-import DeleteComment from './DeleteComment';
+import DeleteContent from '../shared/DeleteContent';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -42,13 +42,15 @@ function CommentList({ postId, updateComments, comments }) {
               </div>
               <div className='ml-2'>
                 <p className='mb-4'>{comment.content}</p>
-                <div className='flex gap-2'>
+                <div className='flex justify-between gap-2'>
                   <TimeAgo datetime={comment.dateCreated} />
                   {isAdmin && (
-                    <>
-                      <p>·</p>
-                      <DeleteComment commentId={comment.id} updateComments={updateComments} user={user} />
-                    </>
+                    <DeleteContent
+                      contentId={comment.id}
+                      route={'/admin/comments'}
+                      user={user}
+                      onSuccess={() => updateComments({ data: comment.id, operation: 'DELETE' })}
+                    />
                   )}
                 </div>
               </div>
