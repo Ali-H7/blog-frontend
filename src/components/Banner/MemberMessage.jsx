@@ -1,9 +1,9 @@
 import Dialog from '../shared/Dialog';
 import { useState } from 'react';
-import { X as CloseIcon, LoaderCircle as LoadingIcon } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import useFetch from '../../hooks/useFetch';
 import { useAuth } from '../../context/AuthContext';
+import DialogWithConfirmBtn from '../shared/DialogWithConfirmBtn';
 
 function MemberMessage({ user }) {
   const navigate = useNavigate();
@@ -31,6 +31,16 @@ function MemberMessage({ user }) {
     }
   }
 
+  const dialogOptions = {
+    onClose,
+    loading,
+    error,
+    handleConfirm,
+    title: 'Please Read!',
+    textContent: `This access is for testing purposes only. Please do not delete, edit, or post inappropriate content.
+                Help us keep the environment clean and functional for everyone.`,
+  };
+
   return (
     <div>
       <p className='text-center'>
@@ -49,29 +59,7 @@ function MemberMessage({ user }) {
           onClose={onClose}
           disableEscKey={loading}
         >
-          <div className='bg-papaya_whip-400 relative flex max-w-xl items-center gap-4 rounded-md p-4'>
-            <CloseIcon
-              className='absolute top-2 right-4 hover:cursor-pointer disabled:hover:cursor-not-allowed'
-              onClick={onClose}
-              disabled={loading}
-            />
-            <div className='space-y-2'>
-              <h1 className='text-center font-bold'>Please Read!</h1>
-              {error && <p className='text-center text-red-600'>Something went wrong, please try again later!</p>}
-              <p className='mb-4'>
-                This access is for testing purposes only. Please do not delete, edit, or post inappropriate content.
-                Help us keep the environment clean and functional for everyone.
-              </p>
-              <button
-                className='bg-tea_green-300 hover:bg-tea_green-200 flex w-full justify-center gap-4 p-2 hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
-                onClick={handleConfirm}
-                disabled={loading}
-              >
-                <p>Confirm</p>
-                {loading && <LoadingIcon className='animate-spin' />}
-              </button>
-            </div>
-          </div>
+          <DialogWithConfirmBtn options={dialogOptions} />
         </Dialog>
       )}
     </div>
