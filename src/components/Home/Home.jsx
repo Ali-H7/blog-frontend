@@ -4,9 +4,17 @@ import Skeleton from 'react-loading-skeleton';
 import RetryButton from '../shared/RetryButton';
 
 function Home() {
-  const { error, loading, data, retry } = useFetch('/posts');
+  const { error, loading, data, setData, retry } = useFetch('/posts');
   const retryProps = { error, retry };
   const parentClasses = 'p-8 flex flex-col gap-6';
+
+  function deletePost(postId) {
+    setData((prevData) => {
+      const { posts } = prevData;
+      const updatedPost = posts.filter((post) => post.id !== postId);
+      return { posts: updatedPost };
+    });
+  }
 
   if (error) {
     return (
@@ -37,7 +45,7 @@ function Home() {
   return (
     <div className={parentClasses}>
       {data.posts.map((post) => (
-        <BlogCard key={post.id} post={post}></BlogCard>
+        <BlogCard key={post.id} post={post} deletePost={deletePost}></BlogCard>
       ))}
     </div>
   );
