@@ -6,7 +6,7 @@ import { Navigate, useNavigate } from 'react-router';
 import UserNameInput from './UserNameInput';
 import PasswordInput from './PasswordInput';
 import { Link } from 'react-router';
-import { useAuth } from '../../App';
+import { useAuth } from '../../context/AuthContext';
 
 function Login() {
   const { user, login } = useAuth();

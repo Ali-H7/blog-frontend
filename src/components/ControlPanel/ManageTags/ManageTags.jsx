@@ -52,13 +52,7 @@ function ManageTags() {
           selectedTag={selectedTag}
         />
       </Dialog>
-      {deleteFetch.error && (
-        <Alert
-          position={'top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2'}
-          dialogStatus={deleteFetch.error}
-          onClose={() => deleteFetch.setError(null)}
-        />
-      )}
+      {deleteFetch.error && <Alert dialogStatus={deleteFetch.error} onClose={() => deleteFetch.setError(null)} />}
     </div>
   );
 }

@@ -1,14 +1,15 @@
 import { Navigate, Link } from 'react-router';
-import getLoggedUser from '../../helpers/getLoggedUser';
+import { useAuth } from '../../context/AuthContext';
 
 function ControlPanel() {
-  const currentUser = getLoggedUser();
-  if (!currentUser) {
-    return <Navigate to='/cp/login' replace />;
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to='/login' replace />;
   }
 
   const actionList = [
     { text: 'Create a Post', link: '/cp/post' },
+    { text: 'Manage Posts', link: '/cp/manage' },
     { text: 'Manage Tags', link: '/cp/tags' },
   ];
 
@@ -16,7 +17,7 @@ function ControlPanel() {
     <div className='flex justify-center'>
       <div className='h-full w-full max-w-3xl p-4 text-center'>
         <p>
-          Welcome <span className='font-bold'>{currentUser.userName}</span>
+          Welcome <span className='font-bold'>{user.userName}</span>
         </p>
         <p className='mb-4'>Please choose an action</p>
         <ul className='bg-beige-DEFAULT space-y-4 rounded-md p-4 font-bold'>

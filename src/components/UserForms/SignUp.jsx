@@ -1,6 +1,6 @@
 import UserNameInput from './UserNameInput';
 import { Navigate, useNavigate } from 'react-router';
-import { useAuth } from '../../App';
+import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import PasswordInput from './PasswordInput';
 import useFetch from '../../hooks/useFetch';
