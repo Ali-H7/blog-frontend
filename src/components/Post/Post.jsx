@@ -5,10 +5,20 @@ import PostDetails from './PostDetails';
 import CommentList from './CommentList';
 import PostLoading from './PostLoading';
 import RetryButton from '../shared/RetryButton';
+import { useAuth } from '../../context/AuthContext';
 
 function Post() {
+  const { user: loggedUser } = useAuth();
+  const isAdmin = loggedUser?.isAdmin;
+  const options = {};
+  if (isAdmin) {
+    options.headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${loggedUser.token}`,
+    };
+  }
   const { slug } = useParams();
-  const { error, loading, data, setData, retry } = useFetch(`/posts/${slug}`);
+  const { error, loading, data, setData, retry } = useFetch(`/posts/${slug}`, { options });
   const containerClasses = 'space-y-8 pb-4 pt-8 px-4';
   const errorProps = { error, retry };
 
