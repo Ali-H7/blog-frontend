@@ -10,6 +10,12 @@ import CreatePost from './components/CreatePost';
 import ManageTags from './components/ControlPanel/ManageTags/ManageTags';
 import Error from './components/Error';
 import SignUp from './components/UserForms/SignUp';
+import { useLocation } from 'react-router';
+
+const Posts = () => {
+  const location = useLocation();
+  return <Home key={location.pathname} />;
+};
 
 const routes = [
   {
@@ -18,7 +24,7 @@ const routes = [
     children: [
       {
         index: true,
-        element: <Home />,
+        element: <Posts />,
       },
       {
         path: '/login',
@@ -52,6 +58,10 @@ const routes = [
       {
         path: 'cp/post',
         element: <CreatePost />,
+      },
+      {
+        path: 'cp/posts',
+        element: <Posts />,
       },
       {
         path: 'cp/tags',

@@ -3,7 +3,6 @@ import RetryButton from '../shared/RetryButton';
 import { Link } from 'react-router';
 
 function SearchResults({ error, retry, isLoading, isNoPostFound, posts }) {
-  console.log(posts);
   if (error) {
     const RetryButtonProps = { error, retry };
     return (

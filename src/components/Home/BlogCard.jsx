@@ -2,12 +2,10 @@ import { Link } from 'react-router';
 import dateFormat from 'dateformat';
 import { readingTime } from 'reading-time-estimator';
 import truncate from '../../helpers/truncate';
-import { useAuth } from '../../context/AuthContext';
 import { SquarePen as EditIcon } from 'lucide-react';
 import DeleteContent from '../shared/DeleteContent';
 
-function BlogCard({ post, deletePost }) {
-  const { user } = useAuth();
+function BlogCard({ post, deletePost, user, isControlPanel }) {
   const isAdmin = user?.isAdmin;
   const { title, rawText, dateCreated, tags } = post;
   const timeToRead = readingTime(rawText);
@@ -15,7 +13,7 @@ function BlogCard({ post, deletePost }) {
   const contentPreview = truncate(rawText, 128);
 
   return (
-    <div className='space-y-2 rounded-sm border p-6'>
+    <div className={`space-y-2 rounded-sm border p-6 ${!post.published && 'border-papaya_whip-300'}`}>
       <Link to={`/posts/${post.slug}`}>
         <h1 className='mb-2 text-xl font-bold'>{title}</h1>
       </Link>
@@ -35,11 +33,11 @@ function BlogCard({ post, deletePost }) {
       <Link to={`/posts/${post.slug}`}>
         <p className='w-fit border-b border-b-transparent hover:border-b-black'>Read more →</p>
       </Link>
-      {isAdmin && (
+      {isControlPanel && (
         <div className='flex justify-end gap-4'>
-          <button>
+          <Link to={`/cp/posts/${post.slug}`}>
             <EditIcon className='hover:text-papaya_whip-300 cursor-pointer' />
-          </button>
+          </Link>
           <DeleteContent contentId={post.id} route={'/admin/posts'} user={user} onSuccess={() => deletePost(post.id)} />
         </div>
       )}
