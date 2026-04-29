@@ -1,57 +1,66 @@
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
-import useFetch from '../hooks/useFetch';
-import getLoggedUser from '../helpers/getLoggedUser';
+import useFetch from '../../hooks/useFetch';
 import { Editor } from '@tinymce/tinymce-react';
 import Switch from 'react-switch';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
-import RetryButton from './shared/RetryButton';
-import Alert from './shared/Alert';
+import RetryButton from '../shared/RetryButton';
+import Alert from '../shared/Alert';
 import Select from 'react-select';
 import Skeleton from 'react-loading-skeleton';
-import transformTagsForSelection from '../helpers/transformTagsForSelection';
+import transformTagsForSelection from '../../helpers/transformTagsForSelection';
+import { useAuth } from '../../context/AuthContext';
 
 const KNOWN_ERRORS = {
   401: "You don't have permission to create a post",
   409: 'A post with this title already exists. Kindly choose a different name.',
 };
 
-function CreatePost() {
-  const currentUser = getLoggedUser();
-  if (!currentUser) {
-    return <Navigate to='/cp/login' replace />;
-  }
+function PostEditor({ customOptions = {} }) {
+  const { user } = useAuth();
+  const isAdmin = user?.isAdmin;
+  if (!user) return <Navigate to='/login' replace />;
+  else if (user && !isAdmin) return <Navigate to='/' replace />;
+
+  const defaultOptions = {
+    method: 'POST',
+    title: '',
+    rawText: 'Type post content here!',
+    formattedText: `<div>Type post content here!</div>`,
+    published: false,
+    selectedTags: [],
+  };
+  const editorOpitons = { ...defaultOptions, ...customOptions };
 
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${currentUser.token}`,
+    Authorization: `Bearer ${user.token}`,
   };
 
   const API = import.meta.env.VITE_TINYMCE_API;
-  const [postTitle, setPostTitle] = useState('');
-  const initialValue = 'Type post content here!';
+  const [postTitle, setPostTitle] = useState(editorOpitons.title);
   const [postContent, setPostContent] = useState({
-    rawText: initialValue,
-    formattedText: `<div>${initialValue}</div>`,
+    rawText: editorOpitons.rawText,
+    formattedText: editorOpitons.formattedText,
   });
-  const [published, setPublished] = useState(false);
-  const [selectedOption, setSelectedOption] = useState([]);
+  const [published, setPublished] = useState(editorOpitons.published);
+  const [selectedOption, setSelectedOption] = useState(editorOpitons.selectedTags);
   const [alert, setAlert] = useState(null);
   const { error, setError, loading, setRetryCount, triggerFetch } = useFetch('/admin/posts', { fetch: false });
   const tagsFetch = useFetch('/admin/tags', { options: { headers }, fetch: true });
   const navigate = useNavigate();
   const options = transformTagsForSelection(tagsFetch.data);
-
   function reload() {
     setError(null);
     setRetryCount((prev) => prev + 1);
   }
 
-  async function handlePostCreation() {
+  async function handlePostSubmission() {
     const options = {
-      method: 'POST',
+      method: editorOpitons.method,
       headers,
       body: JSON.stringify({
+        ...(editorOpitons.method === 'PUT' && { id: editorOpitons.id }),
         title: postTitle,
         rawText: postContent.rawText,
         formattedText: postContent.formattedText,
@@ -59,7 +68,7 @@ function CreatePost() {
         tags: selectedOption.map((tag) => ({
           id: tag.value,
         })),
-        userId: currentUser.id,
+        userId: user.id,
       }),
     };
 
@@ -92,7 +101,7 @@ function CreatePost() {
         className='flex flex-col gap-8'
         onSubmit={(e) => {
           e.preventDefault();
-          handlePostCreation();
+          handlePostSubmission();
         }}
       >
         <input
@@ -133,7 +142,7 @@ function CreatePost() {
             toolbar:
               'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
           }}
-          initialValue={initialValue}
+          initialValue={editorOpitons.formattedText}
           readonly={loading}
         />
         {tagsFetch.loading ? (
@@ -172,7 +181,7 @@ function CreatePost() {
           type='submit'
           disabled={loading}
         >
-          <p>Create Post</p>
+          <p>{editorOpitons.method === 'POST' ? 'Create' : 'Edit'} Post</p>
           {loading && <LoadingIcon className='animate-spin' />}
         </button>
       </form>
@@ -181,4 +190,4 @@ function CreatePost() {
   );
 }
 
-export default CreatePost;
+export default PostEditor;

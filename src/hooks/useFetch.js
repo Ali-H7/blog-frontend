@@ -26,7 +26,6 @@ function useFetch(route, additionalConfig = {}) {
     config.current = { ...config.current, ...updatedConfig };
     const currentOptions = config.current.options;
 
-    console.log(currentOptions);
     try {
       const response = await fetch(`${API}${route}`, { ...currentOptions, signal });
       const blob = await response.text();
