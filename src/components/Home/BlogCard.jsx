@@ -23,8 +23,10 @@ function BlogCard({ post, deletePost, user, isControlPanel }) {
       {tags.length > 0 && (
         <ul className='flex flex-wrap gap-2 text-xs'>
           {tags.map((tag) => (
-            <li key={tag.id} className='rounded-sm border p-1'>
-              {tag.name}
+            <li key={tag.id}>
+              <Link to={`/tags/${tag.slug}`}>
+                <p className='rounded-sm border p-1'>{tag.name}</p>
+              </Link>
             </li>
           ))}
         </ul>
@@ -35,7 +37,7 @@ function BlogCard({ post, deletePost, user, isControlPanel }) {
       </Link>
       {isControlPanel && (
         <div className='flex justify-end gap-4'>
-          <Link to={`/cp/posts/${post.slug}`}>
+          <Link to={`/cp/edit/${post.slug}`}>
             <EditIcon className='hover:text-papaya_whip-300 cursor-pointer' />
           </Link>
           <DeleteContent contentId={post.id} route={'/admin/posts'} user={user} onSuccess={() => deletePost(post.id)} />
