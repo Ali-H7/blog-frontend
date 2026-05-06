@@ -3,11 +3,13 @@ async function fetchData(route, options = {}) {
     const API = import.meta.env.VITE_API;
     const response = await fetch(`${API}${route}`, options);
     const data = await response.json();
+
     if (!response.ok) {
-      const { error } = data;
-      const newError = new Error(error || 'Something went wrong');
-      newError.status = response.status || 500;
-      throw newError;
+      const { error, validationErrors } = data;
+      const apiError = new Error(error || 'Something went wrong');
+      apiError.status = response.status || 500;
+      apiError.validationErrors = validationErrors ?? [];
+      throw apiError;
     }
 
     return data;
