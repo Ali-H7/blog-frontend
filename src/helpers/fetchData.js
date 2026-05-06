@@ -2,7 +2,8 @@ async function fetchData(route, options = {}) {
   try {
     const API = import.meta.env.VITE_API;
     const response = await fetch(`${API}${route}`, options);
-    const data = await response.json();
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
 
     if (!response.ok) {
       const { error, validationErrors } = data;
