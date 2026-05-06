@@ -6,11 +6,14 @@ import Tags from './components/Tags/Tags';
 import TagsBrowser from './components/Tags/TagsBrowser';
 import ControlPanel from './components/ControlPanel/ControlPanel';
 import Login from './components/UserForms/Login';
-import CreatePost from './components/CreatePost';
+import PostEditor from './components/PostEditor/PostEditor';
+import EditPost from './components/PostEditor/EditPost';
 import ManageTags from './components/ControlPanel/ManageTags/ManageTags';
 import Error from './components/Error';
 import SignUp from './components/UserForms/SignUp';
 import { useLocation } from 'react-router';
+import Layout from './components/Layout';
+import { AuthProvider } from './context/AuthContext';
 
 const Posts = () => {
   const location = useLocation();
@@ -57,7 +60,11 @@ const routes = [
 
       {
         path: 'cp/post',
-        element: <CreatePost />,
+        element: <PostEditor />,
+      },
+      {
+        path: 'cp/edit/:slug',
+        element: <EditPost />,
       },
       {
         path: 'cp/posts',
@@ -68,7 +75,13 @@ const routes = [
         element: <ManageTags />,
       },
     ],
-    errorElement: <Error />,
+    errorElement: (
+      <AuthProvider>
+        <Layout>
+          <Error />
+        </Layout>
+      </AuthProvider>
+    ),
   },
 ];
 
