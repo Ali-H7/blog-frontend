@@ -1,7 +1,7 @@
 import { readingTime } from 'reading-time-estimator';
 import dateFormat from 'dateformat';
 
-function PostDetails({ rawText, dateCreated, title, tags, userName, loading }) {
+function PostDetails({ rawText, dateCreated, title, tags, userName }) {
   const timeToRead = readingTime(rawText);
   const formattedDate = dateFormat(dateCreated, 'fullDate');
 

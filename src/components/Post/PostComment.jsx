@@ -2,8 +2,13 @@ import { useState } from 'react';
 import useFetch from '../../hooks/useFetch';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
 import Alert from '../shared/Alert';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router';
 
-function PostComment({ comment, setComment, postId, updateComments, user }) {
+function PostComment({ comment, setComment, postId, user }) {
+  const queryClient = useQueryClient();
+  const { slug } = useParams();
+
   const { loading, setError, triggerFetch } = useFetch('/comments', { fetch: false });
   const characterCount = `${comment.length} / 160 ${comment.length > 160 ? '!' : ''}`;
   const [alert, setAlert] = useState(null);
@@ -26,7 +31,7 @@ function PostComment({ comment, setComment, postId, updateComments, user }) {
     try {
       const userComment = await triggerFetch({ options });
       setComment('');
-      updateComments({ data: userComment, operation: 'ADD' });
+      queryClient.invalidateQueries({ queryKey: ['post', slug] });
     } catch (err) {
       setError(null);
       setAlert('Something went wrong... Try Again');

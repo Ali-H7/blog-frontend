@@ -3,18 +3,17 @@ import Dialog from './Dialog';
 import DialogWithConfirmBtn from './DialogWithConfirmBtn';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router';
 import fetchData from '../../helpers/fetchData';
 
-// TODO: handle comment deletion
-
-function DeleteContent({ contentId, route, user }) {
+function DeleteContent({ contentId, routeInfo, user }) {
   const queryClient = useQueryClient();
-
-  const keyword = route === '/admin/comments' ? 'comment' : 'post';
+  const { slug } = useParams();
+  const { route, keyword } = routeInfo;
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const openDialog = () => setIsDialogOpen(true);
-  const onClose = () => setIsDialogOpen(false);
+  const closeDialog = () => setIsDialogOpen(false);
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: ({ signal }) => {
@@ -33,13 +32,20 @@ function DeleteContent({ contentId, route, user }) {
     },
 
     onSuccess: () => {
-      onClose();
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      closeDialog();
+      switch (keyword) {
+        case 'post':
+          queryClient.invalidateQueries({ queryKey: ['posts'] });
+          break;
+        case 'comments':
+          queryClient.invalidateQueries({ queryKey: ['post', slug] });
+          break;
+      }
     },
   });
 
   const dialogOptions = {
-    onClose,
+    onClose: closeDialog,
     isPending,
     error,
     mutate,
@@ -55,7 +61,7 @@ function DeleteContent({ contentId, route, user }) {
       <Dialog
         position='top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2'
         dialogStatus={isDialogOpen}
-        onClose={onClose}
+        onClose={closeDialog}
         disableEscKey={isPending}
       >
         <DialogWithConfirmBtn options={dialogOptions} />

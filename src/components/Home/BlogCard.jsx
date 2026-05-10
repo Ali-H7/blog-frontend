@@ -5,8 +5,7 @@ import truncate from '../../helpers/truncate';
 import { SquarePen as EditIcon } from 'lucide-react';
 import DeleteContent from '../shared/DeleteContent';
 
-function BlogCard({ post, deletePost, user, isControlPanel }) {
-  const isAdmin = user?.isAdmin;
+function BlogCard({ post, user, isControlPanel }) {
   const { title, rawText, dateCreated, tags } = post;
   const timeToRead = readingTime(rawText);
   const formattedDate = dateFormat(dateCreated, 'fullDate');
@@ -40,7 +39,7 @@ function BlogCard({ post, deletePost, user, isControlPanel }) {
           <Link to={`/cp/edit/${post.slug}`}>
             <EditIcon className='hover:text-papaya_whip-300 cursor-pointer' />
           </Link>
-          <DeleteContent contentId={post.id} route={'/admin/posts'} user={user} onSuccess={() => deletePost(post.id)} />
+          <DeleteContent contentId={post.id} routeInfo={{ route: '/admin/posts', keyword: 'post' }} user={user} />
         </div>
       )}
     </div>

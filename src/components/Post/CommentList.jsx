@@ -6,11 +6,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
-function CommentList({ postId, updateComments, comments }) {
+function CommentList({ postId, comments }) {
   const { user } = useAuth();
   const isAdmin = user && user.isAdmin;
   const [comment, setComment] = useState('');
-  const postCommentProps = { comment, setComment, postId, updateComments, user };
+  const postCommentProps = { comment, setComment, postId, user };
+
   return (
     <div className='space-y-4'>
       <div>
@@ -47,9 +48,8 @@ function CommentList({ postId, updateComments, comments }) {
                   {isAdmin && (
                     <DeleteContent
                       contentId={comment.id}
-                      route={'/admin/comments'}
+                      routeInfo={{ route: '/admin/comments', keyword: 'comments' }}
                       user={user}
-                      onSuccess={() => updateComments({ data: comment.id, operation: 'DELETE' })}
                     />
                   )}
                 </div>
