@@ -2,17 +2,10 @@ import Skeleton from 'react-loading-skeleton';
 import RetryButton from '../shared/RetryButton';
 import { Link } from 'react-router';
 
-function SearchResults({ error, retry, isLoading, isNoPostFound, posts }) {
-  if (error) {
-    const RetryButtonProps = { error, retry };
-    return (
-      <div className='py-8'>
-        <RetryButton {...RetryButtonProps} />
-      </div>
-    );
-  }
+function SearchResults({ isError, error, retry, isFetching, isNoPostFound, posts }) {
+  if (isError) return <RetryButton error={error.message} retry={retry} />;
 
-  if (isLoading) {
+  if (isFetching) {
     return (
       <ul className='space-y-4 py-8'>
         {new Array(3).fill({}).map((_, i) => (
@@ -33,7 +26,7 @@ function SearchResults({ error, retry, isLoading, isNoPostFound, posts }) {
 
   return (
     <ul className='space-y-4 py-8'>
-      {posts.map((post) => (
+      {posts?.map((post) => (
         <li key={post.id}>
           <Link to={`/posts/${post.slug}`}>
             <div className='bg-tea_green-DEFAULT rounded-lg p-6'>
