@@ -1,47 +1,40 @@
-import useFetch from '../../hooks/useFetch';
+import { useQuery } from '@tanstack/react-query';
 import BlogCard from './BlogCard';
 import Skeleton from 'react-loading-skeleton';
 import RetryButton from '../shared/RetryButton';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation, Navigate } from 'react-router';
+import fetchData from '../../helpers/fetchData';
 
-function Home() {
+function Posts() {
   const { user } = useAuth();
   const isAdmin = user?.isAdmin;
   const location = useLocation();
   const isControlPanel = location.pathname === '/cp/posts';
   if (isControlPanel && !isAdmin) return <Navigate to='/' replace />;
   const route = isAdmin && isControlPanel ? '/admin/posts' : '/posts';
-  const options = {};
 
-  if (isAdmin) {
-    options.headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${user.token}`,
-    };
-  }
+  const { data, isError, isLoading, error, refetch } = useQuery({
+    queryKey: ['posts'],
+    queryFn: ({ signal }) => {
+      const options = {
+        signal,
+        ...(isAdmin && {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          },
+        }),
+      };
+      return fetchData(route, options);
+    },
+  });
 
-  const { error, loading, data, setData, retry } = useFetch(route, { options, fetch: true });
-  const retryProps = { error, retry };
   const parentClasses = 'p-8 flex flex-col gap-6';
 
-  function deletePost(postId) {
-    setData((prevData) => {
-      const { posts } = prevData;
-      const updatedPost = posts.filter((post) => post.id !== postId);
-      return { posts: updatedPost };
-    });
-  }
+  if (isError) return <RetryButton error={error.message} retry={refetch} />;
 
-  if (error) {
-    return (
-      <div className={parentClasses}>
-        <RetryButton {...retryProps} />
-      </div>
-    );
-  }
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={parentClasses}>
         {new Array(5).fill({}).map((_, i) => (
@@ -62,16 +55,10 @@ function Home() {
   return (
     <div className={parentClasses}>
       {data.posts.map((post) => (
-        <BlogCard
-          key={post.id}
-          post={post}
-          deletePost={deletePost}
-          user={user}
-          isControlPanel={isControlPanel}
-        ></BlogCard>
+        <BlogCard key={post.id} post={post} user={user} isControlPanel={isControlPanel}></BlogCard>
       ))}
     </div>
   );
 }
 
-export default Home;
+export default Posts;

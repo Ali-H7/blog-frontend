@@ -1,5 +1,5 @@
 import App from './App';
-import Home from './components/Home/Home';
+import Posts from './components/Home/Posts';
 import Post from './components/Post/Post';
 import Search from './components/Search/Search';
 import Tags from './components/Tags/Tags';
@@ -15,9 +15,9 @@ import { useLocation } from 'react-router';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
 
-const Posts = () => {
+const PostList = () => {
   const location = useLocation();
-  return <Home key={location.pathname} />;
+  return <Posts key={location.pathname} />;
 };
 
 const routes = [
@@ -27,7 +27,7 @@ const routes = [
     children: [
       {
         index: true,
-        element: <Posts />,
+        element: <PostList />,
       },
       {
         path: '/login',
@@ -68,7 +68,7 @@ const routes = [
       },
       {
         path: 'cp/posts',
-        element: <Posts />,
+        element: <PostList />,
       },
       {
         path: 'cp/tags',
