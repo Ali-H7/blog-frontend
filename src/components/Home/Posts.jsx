@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
-import BlogCard from './BlogCard';
-import Skeleton from 'react-loading-skeleton';
-import RetryButton from '../shared/RetryButton';
-import { useAuth } from '../../context/AuthContext';
+import { useState } from 'react';
 import { useLocation, Navigate } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../../context/AuthContext';
 import fetchData from '../../helpers/fetchData';
+import BlogCard from './BlogCard';
+import BlogCardLoading from './BlogCardLoading';
+import RetryButton from '../shared/RetryButton';
 
 function Posts() {
   const { user } = useAuth();
@@ -14,6 +15,7 @@ function Posts() {
   if (isControlPanel && !isAdmin) return <Navigate to='/' replace />;
   const route = isAdmin && isControlPanel ? '/admin/posts' : '/posts';
 
+  const [retryCount, setRetryCount] = useState();
   const { data, isError, isLoading, error, refetch } = useQuery({
     queryKey: ['posts'],
     queryFn: ({ signal }) => {
@@ -30,33 +32,23 @@ function Posts() {
     },
   });
 
-  const parentClasses = 'p-8 flex flex-col gap-6';
-
-  if (isError) return <RetryButton error={error.message} retry={refetch} />;
-
-  if (isLoading) {
-    return (
-      <div className={parentClasses}>
-        {new Array(5).fill({}).map((_, i) => (
-          <Skeleton key={i} count={5} style={{ marginBottom: '0.5rem' }} />
-        ))}
-      </div>
-    );
+  function retry() {
+    setRetryCount((prevCount) => prevCount + 1);
+    refetch();
   }
 
-  if (data.posts.length === 0) {
-    return (
-      <div className={parentClasses}>
-        <p className='text-center'>No Posts Found</p>
-      </div>
-    );
-  }
+  if (isError && retryCount < 3) return <RetryButton error={error.message} retry={retry} />;
+  else if (isError) return <Error error={error} />;
 
   return (
-    <div className={parentClasses}>
-      {data.posts.map((post) => (
-        <BlogCard key={post.id} post={post} user={user} isControlPanel={isControlPanel}></BlogCard>
-      ))}
+    <div className='flex flex-col gap-6 p-8'>
+      {isLoading ? (
+        <BlogCardLoading count={3} />
+      ) : data.posts.length === 0 ? (
+        <p className='text-center'>No Posts Found</p>
+      ) : (
+        data.posts.map((post) => <BlogCard key={post.id} post={post} user={user} isControlPanel={isControlPanel} />)
+      )}
     </div>
   );
 }
