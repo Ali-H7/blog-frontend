@@ -1,61 +1,49 @@
-import { useState, useEffect } from 'react';
-import fetchData from '../../helpers/fetchData';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router';
-import BlogCard from '../Home/BlogCard';
-import { ArrowLeft as LeftArrowIcon } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import fetchData from '../../helpers/fetchData';
 import formatTagName from '../../helpers/formatTagName';
+import BlogCard from '../Home/BlogCard';
+import BlogCardLoading from '../Home/BlogCardLoading';
+import Skeleton from 'react-loading-skeleton';
+import { ArrowLeft as LeftArrowIcon } from 'lucide-react';
 
 function TagsBrowser() {
   const { slug } = useParams();
-  const [tag, setTag] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const posts = tag.posts ?? [];
+  const [retryCount, setRetryCount] = useState();
+  const { data, isError, isLoading, error, refetch } = useQuery({
+    queryKey: ['tag', slug],
+    queryFn: ({ signal }) => {
+      return fetchData(`/tags/${slug}`, { signal });
+    },
+    select: (fetchedData) => ({ ...fetchedData.tag, name: formatTagName(fetchedData.tag.name) }),
+  });
 
   function retry() {
-    setError(null);
-    setIsLoading(true);
-    setTimeout(() => setRetryCount((prev) => prev + 1), 500);
+    setRetryCount((prevCount) => prevCount + 1);
+    refetch();
   }
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const options = { signal };
-
-    async function getPosts() {
-      try {
-        const data = await fetchData(`/tags/${slug}`, options);
-        const tag = data.tag;
-        setTag({ ...tag, name: formatTagName(tag.name) });
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-        setError(err.message);
-      } finally {
-        if (!signal.aborted) setIsLoading(false);
-      }
-    }
-    getPosts();
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
-
-  console.log(tag);
+  if (isError && retryCount < 3) return <RetryButton error={error.message} retry={retry} />;
+  else if (isError) return <Error error={error} />;
 
   return (
     <div className='px-4 py-8'>
       <Link to='/tags'>
-        <div className='flex gap-2 mb-4 border-b border-transparent hover:border-black w-fit px-2'>
+        <div className='mb-4 flex w-fit gap-2 border-b border-transparent px-2 hover:border-black'>
           <LeftArrowIcon />
           <p className=''>Back to Tags</p>
         </div>
       </Link>
-      <h1 className='font-bold text-center mb-4 text-xl'>{tag.name} posts</h1>
+      <h1 className='mb-4 text-center text-xl font-bold'>
+        {isLoading ? <Skeleton width={'128px'} /> : `${data.name} posts`}
+      </h1>
       <div className='flex flex-col gap-6'>
-        {posts.length > 0 && posts.map((post) => <BlogCard key={post.id} post={post} />)}
+        {isLoading ? (
+          <BlogCardLoading count={3} />
+        ) : (
+          data.posts.length > 0 && data.posts.map((post) => <BlogCard key={post.id} post={post} />)
+        )}
       </div>
     </div>
   );
