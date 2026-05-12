@@ -1,8 +1,8 @@
 import { X as XIcon } from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
 
-function TagList({ data, loading, setSelectedTag }) {
-  const tags = loading || !data ? new Array(16).fill({}) : data.tags;
+function TagList({ data, loading, isTagsFetching, setSelectedTag }) {
+  const tags = loading || isTagsFetching ? new Array(data?.tags?.length || 16).fill({}) : data.tags;
   return (
     <div className='space-y-4'>
       <h1 className='text-center text-2xl font-bold'>Tag List</h1>

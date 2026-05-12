@@ -1,37 +1,34 @@
 import { useState } from 'react';
 import { Plus as AddIcon, LoaderCircle as LoadingIcon } from 'lucide-react';
-import Alert from '../../shared/Alert';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import fetchData from '../../../helpers/fetchData';
 
-function AddTag({ currentUser, addFetch, setData, tagsFetchLoading }) {
+function AddTag({ headers, route, isTagsPending, isTagsFetching, setAlertMsg }) {
+  const queryClient = useQueryClient();
   const [tag, setTag] = useState('');
-  const [alertMsg, setAlertMsg] = useState('');
-  const { loading, triggerFetch } = addFetch;
 
-  async function add() {
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${currentUser.token}`,
-      },
-      body: JSON.stringify({
-        name: tag,
-      }),
-    };
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({ signal }) => {
+      const options = {
+        signal,
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: tag,
+        }),
+      };
+      return fetchData(route, options);
+    },
 
-    try {
-      const response = await triggerFetch({ options });
-      setData((tagObj) => ({
-        ...tagObj,
-        tags: [response.tag, ...tagObj.tags],
-      }));
-      setTag('');
-    } catch (err) {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags', 'manage'] });
+    },
+    onError: (err) => {
       const { validationErrors } = err;
       if (validationErrors?.length > 0) setAlertMsg(validationErrors[0].msg);
       else setAlertMsg(err.message);
-    }
-  }
+    },
+  });
 
   return (
     <div className='space-y-4'>
@@ -45,15 +42,15 @@ function AddTag({ currentUser, addFetch, setData, tagsFetchLoading }) {
           placeholder='Tag Name'
           value={tag}
           onChange={(e) => setTag(e.target.value)}
-          disabled={loading || tagsFetchLoading}
+          disabled={isPending || isTagsFetching}
           required
         />
         <button
           className='bg-papaya_whip-400 hover:bg-papaya_whip-300 flex items-center justify-center gap-2 rounded-md p-2 hover:cursor-pointer'
-          onClick={add}
-          disabled={loading || tagsFetchLoading}
+          onClick={mutate}
+          disabled={isPending || isTagsFetching}
         >
-          {loading ? (
+          {isPending ? (
             <LoadingIcon className='animate-spin' />
           ) : (
             <>
@@ -63,13 +60,6 @@ function AddTag({ currentUser, addFetch, setData, tagsFetchLoading }) {
           )}
         </button>
       </div>
-      {alertMsg && (
-        <Alert
-          position={'top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2'}
-          dialogStatus={alertMsg}
-          onClose={() => setAlertMsg('')}
-        />
-      )}
     </div>
   );
 }

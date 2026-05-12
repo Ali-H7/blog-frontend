@@ -1,58 +1,73 @@
 import { useState } from 'react';
-import useFetch from '../../../hooks/useFetch';
 import Dialog from '../../shared/Dialog';
 import DeleteTagDialog from './DeleteTagDialog';
 import AddTag from './AddTag';
 import TagList from './TagList';
-import getLoggedUser from '../../../helpers/getLoggedUser';
 import Alert from '../../shared/Alert';
 import RetryButton from '../../shared/RetryButton';
+import { useAuth } from '../../../context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import fetchData from '../../../helpers/fetchData';
+import Error from '../../Error';
+
+//TODO: Fix Loading for Adding Tags
 
 function ManageTags() {
-  const currentUser = getLoggedUser();
-  if (!currentUser) {
-    return <Navigate to='/cp/login' replace />;
+  const { user } = useAuth();
+  const isAdmin = user?.isAdmin;
+  if (!user) return <Navigate to='/login' replace />;
+  else if (user && !isAdmin) return <Navigate to='/' replace />;
+
+  const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` };
+  const route = '/admin/tags';
+
+  const [retryCount, setRetryCount] = useState(0);
+  const { data, isError, isPending, isFetching, error, refetch } = useQuery({
+    queryKey: ['tags', 'manage'],
+    queryFn: ({ signal }) => {
+      return fetchData(`/admin/tags`, { signal, headers });
+    },
+  });
+
+  function retry() {
+    setRetryCount((prevCount) => prevCount + 1);
+    refetch();
   }
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${currentUser.token}`,
-    },
-  };
-
-  const { error, loading, data, setData, retry } = useFetch('/admin/tags', { options, fetch: true });
-  const addFetch = useFetch('/admin/tags', { fetch: false });
-  const deleteFetch = useFetch('/admin/tags', { fetch: false });
-
+  const [alertMsg, setAlertMsg] = useState('');
   const [selectedTag, setSelectedTag] = useState({ id: '', name: '' });
 
-  const isDialogOpen = selectedTag.id;
-  const onDialogClose = () => setSelectedTag({ id: '', name: '' });
+  if (isError && retryCount < 3) return <RetryButton error={error.message} retry={retry} />;
+  else if (isError) return <Error error={error} />;
 
   return (
     <div className='space-y-4 p-8'>
-      <AddTag currentUser={currentUser} addFetch={addFetch} setData={setData} tagsFetchLoading={loading} />
-      {!error ? (
-        <TagList data={data} loading={loading} setSelectedTag={setSelectedTag} />
+      <AddTag
+        headers={headers}
+        route={route}
+        isTagsPending={isPending}
+        isTagsFetching={isFetching}
+        setAlertMsg={setAlertMsg}
+      />
+      {!isError ? (
+        <TagList data={data} loading={isPending} isTagsFetching={isFetching} setSelectedTag={setSelectedTag} />
       ) : (
-        <RetryButton error={error} retry={retry} />
+        <RetryButton error={error.message} retry={retry} />
       )}
-      <Dialog
-        position='top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2'
-        dialogStatus={isDialogOpen}
-        disableEscKey={deleteFetch.loading}
-        onClose={onDialogClose}
-      >
-        <DeleteTagDialog
-          currentUser={currentUser}
-          deleteFetch={deleteFetch}
-          setData={setData}
-          onDialogClose={onDialogClose}
-          selectedTag={selectedTag}
+      <DeleteTagDialog
+        headers={headers}
+        route={route}
+        selectedTag={selectedTag}
+        setSelectedTag={setSelectedTag}
+        setAlertMsg={setAlertMsg}
+      />
+      {alertMsg && (
+        <Alert
+          position={'top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2'}
+          dialogStatus={alertMsg}
+          onClose={() => setAlertMsg('')}
         />
-      </Dialog>
-      {deleteFetch.error && <Alert dialogStatus={deleteFetch.error} onClose={() => deleteFetch.setError(null)} />}
+      )}
     </div>
   );
 }
