@@ -6,6 +6,7 @@ import fetchData from '../../helpers/fetchData';
 import BlogCard from './BlogCard';
 import BlogCardLoading from './BlogCardLoading';
 import RetryButton from '../shared/RetryButton';
+import Error from '../Error';
 
 function Posts() {
   const { user } = useAuth();
@@ -15,8 +16,8 @@ function Posts() {
   if (isControlPanel && !isAdmin) return <Navigate to='/' replace />;
   const route = isAdmin && isControlPanel ? '/admin/posts' : '/posts';
 
-  const [retryCount, setRetryCount] = useState();
-  const { data, isError, isLoading, error, refetch } = useQuery({
+  const [retryCount, setRetryCount] = useState(0);
+  const { data, isError, isPending, error, refetch } = useQuery({
     queryKey: ['posts'],
     queryFn: ({ signal }) => {
       const options = {
@@ -38,11 +39,13 @@ function Posts() {
   }
 
   if (isError && retryCount < 3) return <RetryButton error={error.message} retry={retry} />;
-  else if (isError) return <Error error={error} />;
+  else if (isError && location.pathname !== '/') return <Error error={error} />;
 
   return (
     <div className='flex flex-col gap-6 p-8'>
-      {isLoading ? (
+      {isError && location.pathname === '/' ? (
+        <p className='text-center'>Sorry, something wrong on our end. Try again Later.</p>
+      ) : isPending ? (
         <BlogCardLoading count={3} />
       ) : data.posts.length === 0 ? (
         <p className='text-center'>No Posts Found</p>
