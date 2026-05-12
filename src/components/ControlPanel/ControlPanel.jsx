@@ -3,13 +3,13 @@ import { useAuth } from '../../context/AuthContext';
 
 function ControlPanel() {
   const { user } = useAuth();
-  if (!user) {
-    return <Navigate to='/login' replace />;
-  }
+  const isAdmin = user?.isAdmin;
+  if (!user) return <Navigate to='/login' replace />;
+  else if (user && !isAdmin) return <Navigate to='/' replace />;
 
   const actionList = [
     { text: 'Create a Post', link: '/cp/post' },
-    { text: 'Manage Posts', link: '/cp/manage' },
+    { text: 'Manage Posts', link: '/cp/posts' },
     { text: 'Manage Tags', link: '/cp/tags' },
   ];
 
