@@ -10,8 +10,8 @@ import { ArrowLeft as LeftArrowIcon } from 'lucide-react';
 
 function TagsBrowser() {
   const { slug } = useParams();
-  const [retryCount, setRetryCount] = useState();
-  const { data, isError, isLoading, error, refetch } = useQuery({
+  const [retryCount, setRetryCount] = useState(0);
+  const { data, isError, isPending, error, refetch } = useQuery({
     queryKey: ['tag', slug],
     queryFn: ({ signal }) => {
       return fetchData(`/tags/${slug}`, { signal });
@@ -36,10 +36,10 @@ function TagsBrowser() {
         </div>
       </Link>
       <h1 className='mb-4 text-center text-xl font-bold'>
-        {isLoading ? <Skeleton width={'128px'} /> : `${data.name} posts`}
+        {isPending ? <Skeleton width={'128px'} /> : `${data.name} posts`}
       </h1>
       <div className='flex flex-col gap-6'>
-        {isLoading ? (
+        {isPending ? (
           <BlogCardLoading count={3} />
         ) : (
           data.posts.length > 0 && data.posts.map((post) => <BlogCard key={post.id} post={post} />)

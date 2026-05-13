@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
-import useFetch from '../../hooks/useFetch';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useAuth } from '../../context/AuthContext';
 import { Editor } from '@tinymce/tinymce-react';
+import Skeleton from 'react-loading-skeleton';
+import Alert from '../shared/Alert';
+import RetryButton from '../shared/RetryButton';
+import Select from 'react-select';
 import Switch from 'react-switch';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
-import RetryButton from '../shared/RetryButton';
-import Alert from '../shared/Alert';
-import Select from 'react-select';
-import Skeleton from 'react-loading-skeleton';
+import fetchData from '../../helpers/fetchData';
 import transformTagsForSelection from '../../helpers/transformTagsForSelection';
-import { useAuth } from '../../context/AuthContext';
 
 const KNOWN_ERRORS = {
   401: "You don't have permission to create a post",
@@ -46,54 +47,53 @@ function PostEditor({ customOptions = {} }) {
   const [published, setPublished] = useState(editorOpitons.published);
   const [selectedOption, setSelectedOption] = useState(editorOpitons.selectedTags);
   const [alert, setAlert] = useState(null);
-  const { error, setError, loading, setRetryCount, triggerFetch } = useFetch('/admin/posts', { fetch: false });
-  const tagsFetch = useFetch('/admin/tags', { options: { headers }, fetch: true });
   const navigate = useNavigate();
-  const options = transformTagsForSelection(tagsFetch.data);
-  function reload() {
-    setError(null);
-    setRetryCount((prev) => prev + 1);
-  }
 
-  async function handlePostSubmission() {
-    const options = {
-      method: editorOpitons.method,
-      headers,
-      body: JSON.stringify({
-        ...(editorOpitons.method === 'PUT' && { id: editorOpitons.id }),
-        title: postTitle,
-        rawText: postContent.rawText,
-        formattedText: postContent.formattedText,
-        published,
-        tags: selectedOption.map((tag) => ({
-          id: tag.value,
-        })),
-        userId: user.id,
-      }),
-    };
+  const {
+    data: tagsData,
+    isError: isTagsError,
+    isPending: isTagsPending,
+    refetch: tagsRefetch,
+  } = useQuery({
+    queryKey: ['tags', 'editor'],
+    queryFn: ({ signal }) => {
+      return fetchData('/admin/tags', { signal, headers });
+    },
+    select: (fetchedData) => transformTagsForSelection(fetchedData),
+  });
 
-    try {
-      const response = await triggerFetch({ options });
-      const { post } = response;
-      navigate(`/posts/${post.slug}`, { replace: true });
-    } catch (err) {
+  const { mutate, isPending, isError, error, reset } = useMutation({
+    mutationFn: () => {
+      const options = {
+        method: editorOpitons.method,
+        headers,
+        body: JSON.stringify({
+          ...(editorOpitons.method === 'PUT' && { id: editorOpitons.id }),
+          title: postTitle,
+          rawText: postContent.rawText,
+          formattedText: postContent.formattedText,
+          published,
+          tags: selectedOption.map((tag) => ({
+            id: tag.value,
+          })),
+          userId: user.id,
+        }),
+      };
+      return fetchData('/admin/posts', options);
+    },
+
+    onSuccess: ({ post }) => navigate(`/posts/${post.slug}`, { replace: true }),
+    onError: (err) => {
       const statusCode = err.status;
       const isErrorKnown = Object.hasOwn(KNOWN_ERRORS, statusCode);
       if (isErrorKnown) {
         setAlert(KNOWN_ERRORS[statusCode]);
-        setError(null);
+        reset();
       }
-    }
-  }
+    },
+  });
 
-  if (error && !alert) {
-    const errorProps = { error, retry: reload };
-    return (
-      <div className='p-8'>
-        <RetryButton {...errorProps} />
-      </div>
-    );
-  }
+  if (isError && !alert) return <RetryButton error={error.message} retry={reset} />;
 
   return (
     <div className='p-8'>
@@ -101,7 +101,7 @@ function PostEditor({ customOptions = {} }) {
         className='flex flex-col gap-8'
         onSubmit={(e) => {
           e.preventDefault();
-          handlePostSubmission();
+          mutate();
         }}
       >
         <input
@@ -112,7 +112,7 @@ function PostEditor({ customOptions = {} }) {
           placeholder='Post Title'
           value={postTitle}
           onChange={(e) => setPostTitle(e.target.value)}
-          disabled={loading}
+          disabled={isPending}
           required
         />
         <Editor
@@ -143,16 +143,29 @@ function PostEditor({ customOptions = {} }) {
               'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
           }}
           initialValue={editorOpitons.formattedText}
-          readonly={loading}
+          readonly={isPending}
         />
-        {tagsFetch.loading ? (
+        {isTagsError ? (
+          <div className='h-10.5 rounded-md border border-black p-2'>
+            <p>
+              We couldn't load the tags. Please try again.{' '}
+              <button
+                className='text-tea_green-300 font-bold hover:cursor-pointer hover:underline'
+                onClick={tagsRefetch}
+                type='button'
+              >
+                Retry
+              </button>
+            </p>
+          </div>
+        ) : isTagsPending ? (
           <Skeleton height={'38px'} />
         ) : (
           <Select
             isMulti
             defaultValue={selectedOption}
             onChange={setSelectedOption}
-            options={options}
+            options={tagsData}
             placeholder={'Select Tags'}
             noOptionsMessage={() => 'No tags available, you can add using the manage tags page'}
           />
@@ -172,17 +185,17 @@ function PostEditor({ customOptions = {} }) {
             width={40}
             className='react-switch'
             id='material-switch'
-            disabled={loading}
+            disabled={isPending}
           />
           <p className='font-bold'>Publish</p>
         </div>
         <button
           className='bg-tea_green-500 hover:bg-tea_green-400 flex w-full justify-center gap-2 self-end rounded-md p-2 font-bold hover:cursor-pointer'
           type='submit'
-          disabled={loading}
+          disabled={isPending}
         >
           <p>{editorOpitons.method === 'POST' ? 'Create' : 'Edit'} Post</p>
-          {loading && <LoadingIcon className='animate-spin' />}
+          {isPending && <LoadingIcon className='animate-spin' />}
         </button>
       </form>
       {alert && <Alert dialogStatus={alert} onClose={() => setAlert(null)} />}

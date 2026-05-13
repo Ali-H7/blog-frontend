@@ -13,7 +13,7 @@ function Post() {
   const isAdmin = user?.isAdmin;
   const { slug } = useParams();
 
-  const { data, isError, isLoading, error, refetch } = useQuery({
+  const { data, isError, isPending, error, refetch } = useQuery({
     queryKey: ['post', slug],
     queryFn: ({ signal }) => {
       const options = {
@@ -29,8 +29,8 @@ function Post() {
     },
   });
 
-  if (isLoading) return <PostLoading />;
   if (isError) return <RetryButton error={error.message} retry={refetch} />;
+  if (isPending) return <PostLoading />;
 
   const { post } = data;
   const {

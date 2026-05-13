@@ -16,7 +16,7 @@ function EditPost() {
 
   const { slug } = useParams();
   const [retryCount, setRetryCount] = useState(0);
-  const { data, isError, isLoading, error, refetch } = useQuery({
+  const { data, isError, isPending, error, refetch } = useQuery({
     queryKey: ['post', slug],
     queryFn: ({ signal }) => {
       const options = {
@@ -38,7 +38,7 @@ function EditPost() {
   if (isError && retryCount < 3) return <RetryButton error={error.message} retry={retry} />;
   else if (isError) return <Error error={error} />;
 
-  if (isLoading) return <PostEditorLoading />;
+  if (isPending) return <PostEditorLoading />;
 
   const { id, formattedText, rawText, title, published, tags } = data.post;
   const editorOpitons = {

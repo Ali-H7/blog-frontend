@@ -16,9 +16,8 @@ function DeleteContent({ contentId, routeInfo, user }) {
   const closeDialog = () => setIsDialogOpen(false);
 
   const { mutate, isPending, error } = useMutation({
-    mutationFn: ({ signal }) => {
+    mutationFn: () => {
       const options = {
-        signal,
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
