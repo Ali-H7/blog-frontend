@@ -8,9 +8,8 @@ function AddTag({ headers, route, isTagsPending, isTagsFetching, setAlertMsg }) 
   const [tag, setTag] = useState('');
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ signal }) => {
+    mutationFn: () => {
       const options = {
-        signal,
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -21,6 +20,7 @@ function AddTag({ headers, route, isTagsPending, isTagsFetching, setAlertMsg }) 
     },
 
     onSuccess: () => {
+      setTag('');
       queryClient.invalidateQueries({ queryKey: ['tags', 'manage'] });
     },
     onError: (err) => {
@@ -35,20 +35,20 @@ function AddTag({ headers, route, isTagsPending, isTagsFetching, setAlertMsg }) 
       <h1 className='text-center text-2xl font-bold'>Manage Tags</h1>
       <div className='mb-8 flex gap-4'>
         <input
-          className='bg-tea_green-DEFAULT w-full rounded-md border p-2 focus:border-2'
+          className='bg-tea_green-DEFAULT w-full rounded-md border p-2 focus:border-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
           type='text'
           name='Tag'
           id='Tag'
           placeholder='Tag Name'
           value={tag}
           onChange={(e) => setTag(e.target.value)}
-          disabled={isPending || isTagsFetching}
+          disabled={isPending || isTagsPending || isTagsFetching}
           required
         />
         <button
-          className='bg-papaya_whip-400 hover:bg-papaya_whip-300 flex items-center justify-center gap-2 rounded-md p-2 hover:cursor-pointer'
+          className='bg-papaya_whip-400 hover:bg-papaya_whip-300 flex items-center justify-center gap-2 rounded-md p-2 hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
           onClick={mutate}
-          disabled={isPending || isTagsFetching}
+          disabled={isPending || isTagsPending || isTagsFetching}
         >
           {isPending ? (
             <LoadingIcon className='animate-spin' />

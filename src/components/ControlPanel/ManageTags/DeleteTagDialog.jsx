@@ -10,9 +10,8 @@ function DeleteTagDialog({ headers, route, selectedTag, setSelectedTag, setAlert
   const onDialogClose = () => setSelectedTag({ id: '', name: '' });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ signal }) => {
+    mutationFn: () => {
       const options = {
-        signal,
         method: 'DELETE',
         headers,
         body: JSON.stringify({

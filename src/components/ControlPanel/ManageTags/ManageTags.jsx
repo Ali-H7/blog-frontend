@@ -10,8 +10,6 @@ import { useQuery } from '@tanstack/react-query';
 import fetchData from '../../../helpers/fetchData';
 import Error from '../../Error';
 
-//TODO: Fix Loading for Adding Tags
-
 function ManageTags() {
   const { user } = useAuth();
   const isAdmin = user?.isAdmin;
