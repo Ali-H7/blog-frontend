@@ -1,12 +1,12 @@
-import UserNameInput from './UserNameInput';
-import { Navigate, useNavigate } from 'react-router';
-import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
+import { Navigate, useNavigate, Link } from 'react-router';
+import { useMutation } from '@tanstack/react-query';
+import { useAuth } from '../../context/AuthContext';
+import fetchData from '../../helpers/fetchData';
+import UserNameInput from './UserNameInput';
 import PasswordInput from './PasswordInput';
-import useFetch from '../../hooks/useFetch';
 import { LoaderCircle as LoadingIcon } from 'lucide-react';
 import RetryButton from '../shared/RetryButton';
-import { Link } from 'react-router';
 
 function SignUp() {
   const { user } = useAuth();
@@ -21,13 +21,43 @@ function SignUp() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { loading, setLoading, error, setError, triggerFetch } = useFetch('/signup', { fetch: false });
   const [validationErrors, setValidationErrors] = useState(initialValidationErrors);
   const navigate = useNavigate();
 
+  const [retryCount, setRetryCount] = useState(0);
+  const { mutate, isPending, isError, error, reset } = useMutation({
+    mutationFn: () => {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userName,
+          password,
+          confirmPassword,
+        }),
+      };
+      return fetchData('/signup', options);
+    },
+    onSuccess: () => {
+      navigate('/login', { replace: true });
+    },
+    onError: (err) => {
+      const { validationErrors } = err;
+      if (validationErrors && validationErrors.length > 0) {
+        reset();
+        const mappedErrors = validationErrors.map((validationErr) => ({ [validationErr.path]: validationErr.msg }));
+        const finalValidationErrors = Object.assign(...mappedErrors);
+        const errorObject = { ...initialValidationErrors, ...finalValidationErrors };
+        setValidationErrors(errorObject);
+      }
+    },
+  });
+
   function retry() {
-    setLoading(false);
-    setError(null);
+    setRetryCount((prevCount) => prevCount + 1);
+    reset();
     setUserName('');
     setPassword('');
     setConfirmPassword('');
@@ -52,45 +82,8 @@ function SignUp() {
     error: validationErrors.confirmPassword,
   };
 
-  async function handleOnSubmit() {
-    setValidationErrors(initialValidationErrors);
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userName,
-        password,
-        confirmPassword,
-      }),
-    };
-
-    try {
-      await triggerFetch({ options });
-      navigate('/login', { replace: true });
-    } catch (err) {
-      const { validationErrors } = err;
-      if (validationErrors && validationErrors.length > 0) {
-        setError(null);
-        const mappedErrors = validationErrors.map((validationErr) => ({ [validationErr.path]: validationErr.msg }));
-        const finalValidationErrors = Object.assign(...mappedErrors);
-        const errorObject = { ...initialValidationErrors, ...finalValidationErrors };
-        setValidationErrors(errorObject);
-      }
-      console.error(err);
-    }
-  }
-
-  const errorProps = { error, retry };
-
-  if (error) {
-    return (
-      <div className='p-8'>
-        <RetryButton {...errorProps} />
-      </div>
-    );
-  }
+  if (isError && retryCount < 3) return <RetryButton error={error.message} retry={retry} />;
+  else if (isError) return <Error error={error} />;
 
   return (
     <div className='flex justify-center px-4 py-16'>
@@ -102,7 +95,7 @@ function SignUp() {
             className='space-y-8'
             onSubmit={(e) => {
               e.preventDefault();
-              handleOnSubmit();
+              mutate();
             }}
           >
             <UserNameInput userName={userName} setUserName={setUserName} error={validationErrors.userName} />
@@ -111,10 +104,10 @@ function SignUp() {
             <button
               className='bg-papaya_whip-400 hover:bg-papaya_whip-300 flex w-full justify-center gap-4 rounded-md p-2 font-bold hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
               type='submit'
-              disabled={loading}
+              disabled={isPending}
             >
               <p>Sign Up</p>
-              {loading && <LoadingIcon className='animate-spin' />}
+              {isPending && <LoadingIcon className='animate-spin' />}
             </button>
           </form>
           <p className='text-center'>

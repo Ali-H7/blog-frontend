@@ -39,6 +39,7 @@ function Login() {
     },
     onError: (err) => {
       if (err.status === 400 || err.status === 401) {
+        reset();
         setIsLoginFailed(true);
         setPassword('');
       }
