@@ -1,12 +1,12 @@
 import { useState } from 'react';
+import { Navigate, useNavigate, Link } from 'react-router';
+import { useMutation } from '@tanstack/react-query';
+import { useAuth } from '../../context/AuthContext';
 import fetchData from '../../helpers/fetchData';
-import { LoaderCircle as LoadingIcon } from 'lucide-react';
-import RetryButton from '../shared/RetryButton';
-import { Navigate, useNavigate } from 'react-router';
 import UserNameInput from './UserNameInput';
 import PasswordInput from './PasswordInput';
-import { Link } from 'react-router';
-import { useAuth } from '../../context/AuthContext';
+import { LoaderCircle as LoadingIcon } from 'lucide-react';
+import RetryButton from '../shared/RetryButton';
 
 function Login() {
   const { user, login } = useAuth();
@@ -14,10 +14,36 @@ function Login() {
 
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoginFailed, setIsLoginFailed] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const [retryCount, setRetryCount] = useState(0);
+  const { mutate, isPending, isError, error, reset } = useMutation({
+    mutationFn: () => {
+      setIsLoginFailed(false);
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userName,
+          password,
+        }),
+      };
+      return fetchData('/login', options);
+    },
+    onSuccess: (userData) => {
+      login(userData);
+      navigate('/', { replace: true });
+    },
+    onError: (err) => {
+      if (err.status === 400 || err.status === 401) {
+        setIsLoginFailed(true);
+        setPassword('');
+      }
+    },
+  });
 
   const passwordOptions = {
     name: 'password',
@@ -31,57 +57,19 @@ function Login() {
   function handleUserInput(setCb, input) {
     setCb(input);
     setIsLoginFailed(false);
+    reset();
   }
 
   function retry() {
+    setRetryCount((prevCount) => prevCount + 1);
     setUserName('');
     setPassword('');
-    setIsLoading(false);
     setIsLoginFailed(false);
-    setError(null);
+    reset();
   }
 
-  async function handleLoginRequest() {
-    setIsLoginFailed(false);
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userName,
-        password,
-      }),
-      signal,
-    };
-
-    try {
-      const userData = await fetchData('/login', options);
-      login(userData);
-      navigate('/', { replace: true });
-    } catch (err) {
-      if (err.status === 400 || err.status === 401) {
-        setIsLoginFailed(true);
-        setPassword('');
-      } else {
-        setError(err.message);
-      }
-    } finally {
-      if (!signal.aborted) setIsLoading(false);
-    }
-  }
-
-  const errorProps = { error, retry };
-
-  if (error) {
-    return (
-      <div className='p-8'>
-        <RetryButton {...errorProps} />
-      </div>
-    );
-  }
+  if (isError && retryCount < 3 && !isLoginFailed) return <RetryButton error={error.message} retry={retry} />;
+  else if (isError && !isLoginFailed) return <Error error={error} />;
 
   return (
     <div className='flex justify-center px-4 py-16'>
@@ -92,8 +80,7 @@ function Login() {
             className='space-y-8'
             onSubmit={(e) => {
               e.preventDefault();
-              setIsLoading(true);
-              handleLoginRequest();
+              mutate();
             }}
           >
             {isLoginFailed && <h3 className='text-center text-red-600'>Incorrect username/password</h3>}
@@ -102,9 +89,9 @@ function Login() {
             <button
               className='bg-papaya_whip-400 hover:bg-papaya_whip-300 flex w-full justify-center gap-4 rounded-md p-2 font-bold hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
               type='submit'
-              disabled={isLoading}
+              disabled={isPending}
             >
-              {isLoading ? <LoadingIcon className='animate-spin' /> : <p>Login</p>}
+              {isPending ? <LoadingIcon className='animate-spin' /> : <p>Login</p>}
             </button>
           </form>
           <p className='text-center'>
